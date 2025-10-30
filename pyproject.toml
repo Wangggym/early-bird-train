@@ -1,0 +1,51 @@
+[project]
+name = "early-bird-train"
+version = "0.1.0"
+description = "携程火车票余票监控和通知工具"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "typing-extensions>=4.12.0",
+    "requests>=2.31.0",
+    "beautifulsoup4>=4.12.3",
+    "lxml>=5.3.0",
+    "openai>=1.0.0",
+    "apscheduler>=3.10.4",
+    "python-dotenv>=1.0.0",
+    "dependency-injector>=4.41.0",
+    "loguru>=0.7.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "ruff>=0.6.0",
+    "mypy>=1.8.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501", "N818"]  # E501: 行过长(HTML模板), N818: 异常命名规范
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_generics = false
+disallow_subclassing_any = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "normal"
+ignore_missing_imports = true
