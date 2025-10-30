@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  early-bird-train:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: early-bird-train
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      - ../logs:/app/logs
+      - ../data:/app/data
+    environment:
+      - TZ=Asia/Shanghai
+    # 如果只想运行一次，使用:
+    # command: python main.py --once
+
