@@ -43,6 +43,32 @@ class APSchedulerWrapper:
 
         logger.info(f"Scheduled weekly job: day_of_week={day_of_week}, time={hour:02d}:{minute:02d}")
 
+    def schedule_multiple_weekly_jobs(
+        self,
+        days_of_week: list[int],
+        hour: int,
+        minute: int,
+        job_func: Callable,
+    ) -> None:
+        """
+        安排多个每周定时任务
+
+        Args:
+            days_of_week: 星期几列表（0=Monday, 6=Sunday）
+            hour: 小时
+            minute: 分钟
+            job_func: 要执行的任务函数
+        """
+        for day in days_of_week:
+            self.schedule_weekly_job(
+                day_of_week=day,
+                hour=hour,
+                minute=minute,
+                job_func=job_func,
+            )
+
+        logger.info(f"Scheduled {len(days_of_week)} weekly job(s): days={days_of_week}, time={hour:02d}:{minute:02d}")
+
     def start(self) -> None:
         """启动调度器"""
         logger.info("Starting scheduler...")

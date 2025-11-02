@@ -25,9 +25,10 @@ class Settings(BaseSettings):
     days_ahead: int = Field(default=15, ge=1, le=30, description="提前天数")
 
     # === 调度配置 ===
-    schedule_day_of_week: int = Field(default=0, ge=0, le=6, description="调度日期（0=周一）")
+    schedule_days_of_week: list[int] = Field(default=[0], description="调度日期列表（0=周一, 多个日期用逗号分隔）")
     schedule_hour: int = Field(default=15, ge=0, le=23, description="调度小时")
     schedule_minute: int = Field(default=30, ge=0, le=59, description="调度分钟")
+    max_retries: int = Field(default=5, ge=1, le=10, description="重试次数（斐波那契退避）")
 
     # === DeepSeek配置 ===
     deepseek_api_key: str = Field(..., description="DeepSeek API密钥")

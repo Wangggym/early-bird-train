@@ -37,8 +37,23 @@ run:
 
 # 测试
 test:
-	$(HIDE)source .venv/bin/activate && uv run pytest
+	$(HIDE)source .venv/bin/activate && uv run pytest -v
 	@echo "✅ Tests passed."
+
+# 测试（带覆盖率）
+test-cov:
+	$(HIDE)source .venv/bin/activate && uv run pytest --cov=src --cov-report=html --cov-report=term-missing
+	@echo "✅ Coverage report generated in htmlcov/"
+
+# 快速测试（并行）
+test-fast:
+	$(HIDE)source .venv/bin/activate && uv run pytest -n auto
+	@echo "✅ Fast tests completed."
+
+# 测试特定文件
+test-unit:
+	$(HIDE)source .venv/bin/activate && uv run pytest tests/unit/ -v
+	@echo "✅ Unit tests passed."
 
 # Docker构建
 docker-build:
@@ -71,15 +86,26 @@ clean:
 # 帮助
 help:
 	@echo "Available commands:"
+	@echo ""
+	@echo "Development:"
 	@echo "  make gen          - 初始化虚拟环境"
 	@echo "  make fix          - 格式化和修复代码"
 	@echo "  make check        - 类型检查"
 	@echo "  make dev          - 开发模式（运行一次测试）"
 	@echo "  make run          - 生产运行（定时调度）"
+	@echo ""
+	@echo "Testing:"
 	@echo "  make test         - 运行测试"
+	@echo "  make test-cov     - 运行测试（带覆盖率）"
+	@echo "  make test-fast    - 快速测试（并行）"
+	@echo "  make test-unit    - 只运行单元测试"
+	@echo ""
+	@echo "Docker:"
 	@echo "  make docker-build - 构建Docker镜像"
 	@echo "  make docker-up    - 启动Docker容器"
 	@echo "  make docker-down  - 停止Docker容器"
 	@echo "  make docker-logs  - 查看Docker日志"
+	@echo ""
+	@echo "Utilities:"
 	@echo "  make clean        - 清理临时文件"
 

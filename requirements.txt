@@ -31,3 +31,6 @@ mypy>=1.8.0
 # Testing
 pytest>=8.0.0
 pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0  # Coverage reporting
+pytest-mock>=3.12.0  # Enhanced mocking
+pytest-xdist>=3.5.0  # Parallel test execution

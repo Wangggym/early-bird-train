@@ -47,4 +47,5 @@ class Container(containers.DeclarativeContainer):
         crawler=crawler,
         analyzer=analyzer,
         notifier=notifier,
+        max_retries=config.provided.max_retries,
     )
