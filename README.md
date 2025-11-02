@@ -1,6 +1,16 @@
-# 早起鸟抢票助手 🚄
+# Early Bird Train 🚄
 
-携程火车票余票监控和AI分析系统，采用企业级架构设计。
+Ctrip train ticket monitoring and AI analysis system with enterprise-grade architecture.
+
+---
+
+**Language**: [English](#english) | [中文](#中文)
+
+---
+
+<a name="english"></a>
+
+## English
 
 [![CI](https://github.com/Wangggym/early-bird-train/workflows/CI%20-%20Code%20Quality%20%26%20Tests/badge.svg)](https://github.com/Wangggym/early-bird-train/actions)
 [![CD](https://github.com/Wangggym/early-bird-train/workflows/CD%20-%20Build%20%26%20Deploy/badge.svg)](https://github.com/Wangggym/early-bird-train/actions)
@@ -10,8 +20,265 @@
 [![Docker](https://img.shields.io/docker/v/_/early-bird-train?label=docker&color=2496ED)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
+### ✨ Features
 
-## ✨ 特性
+- 🎯 **Precise Monitoring**: Support multiple schedule dates with flexible configuration
+- 🔄 **Smart Retry**: Fibonacci backoff strategy to avoid missing tickets due to delays
+- 🤖 **AI Analysis**: DeepSeek intelligent analysis of ticket availability
+- 📧 **Email Notifications**: Beautiful HTML email notifications
+- 🏗️ **Enterprise Architecture**: Object-oriented, dependency injection, strong typing
+- 🐳 **Container Deployment**: One-click Docker deployment
+- 📊 **Comprehensive Logging**: Structured logs for easy tracking
+
+### 🏛️ Architecture Design
+
+```
+Layered Architecture (Clean Architecture)
+├── Domain Layer
+│   ├── Models (Pydantic strongly-typed models)
+│   ├── Interfaces (Abstract interfaces)
+│   └── Exceptions (Domain exceptions)
+├── Application Layer
+│   └── Services (Use case services)
+├── Infrastructure Layer
+│   ├── Crawler (Ctrip crawler)
+│   ├── Analyzer (DeepSeek analysis)
+│   ├── Notifier (Email notifications)
+│   └── Scheduler (Task scheduling)
+└── Container (Dependency injection container)
+```
+
+#### Design Principles
+
+- ✅ **SOLID Principles**
+- ✅ **Dependency Inversion** (Interface-oriented programming)
+- ✅ **Dependency Injection** (using dependency-injector)
+- ✅ **Strong Typing** (Full Type Hints + Pydantic)
+- ✅ **Single Responsibility** (Each class does one thing)
+
+### 🚀 Quick Start
+
+> 📖 Detailed tutorial: [QUICKSTART.md](QUICKSTART.md)
+
+#### 1. Initialize Environment
+
+```bash
+make gen
+source .venv/bin/activate
+```
+
+#### 2. Configure Environment Variables
+
+```bash
+cp .env.example .env
+vim .env  # Fill in DEEPSEEK_API_KEY, SMTP config, EMAIL_TO
+```
+
+#### 3. Run
+
+```bash
+# Development test (run once)
+make dev
+
+# Production run (scheduled)
+make run
+
+# Docker deployment
+make docker-build
+make docker-up
+```
+
+#### Common Commands
+
+| Command | Description |
+|---------|-------------|
+| `make gen` | Initialize environment |
+| `make fix` | Format code |
+| `make check` | Type checking |
+| `make dev` | Development test |
+| `make help` | View all commands |
+
+### 🐳 Docker Deployment
+
+#### Build and Run
+
+```bash
+cd docker
+docker-compose up -d
+```
+
+#### View Logs
+
+```bash
+docker-compose logs -f
+```
+
+#### Stop Service
+
+```bash
+docker-compose down
+```
+
+### 📁 Project Structure
+
+```
+early-bird-train/
+├── src/
+│   ├── domain/              # Domain layer
+│   │   ├── models.py       # Data models (Pydantic)
+│   │   ├── interfaces.py   # Abstract interfaces (ABC)
+│   │   └── exceptions.py    # Domain exceptions
+│   ├── application/         # Application layer
+│   │   └── ticket_service.py  # Monitoring service
+│   ├── infrastructure/      # Infrastructure layer
+│   │   ├── crawler.py      # Ctrip crawler implementation
+│   │   ├── analyzer.py     # DeepSeek analyzer implementation
+│   │   ├── notifier.py     # Email notifier implementation
+│   │   └── scheduler.py    # Scheduler implementation
+│   ├── config/             # Configuration management
+│   │   └── settings.py     # Pydantic Settings
+│   └── container.py        # Dependency injection container
+├── docker/
+│   ├── Dockerfile
+│   └── docker-compose.yml
+├── logs/                   # Log directory
+├── data/                   # Data directory
+├── main.py                 # Program entry point
+├── requirements.txt
+├── pyproject.toml
+├── .env.example
+└── README.md
+```
+
+### 🔧 Configuration
+
+#### Monitoring Configuration
+
+```env
+DEPARTURE_STATION=大邑      # Departure station
+ARRIVAL_STATION=成都南       # Arrival station
+TRAIN_NUMBER=C3380          # Train number
+DAYS_AHEAD=15               # Days ahead
+```
+
+#### Schedule Configuration
+
+```env
+# Support multiple dates (JSON array format)
+SCHEDULE_DAYS_OF_WEEK=[0]   # [0]=Monday only, [0,2,4]=Mon/Wed/Fri
+SCHEDULE_HOUR=15             # Hour (0-23)
+SCHEDULE_MINUTE=30           # Minute (0-59)
+MAX_RETRIES=5                # Retry count (Fibonacci backoff)
+```
+
+**Day Mapping**: 0=Monday, 1=Tuesday, 2=Wednesday, 3=Thursday, 4=Friday, 5=Saturday, 6=Sunday
+
+#### DeepSeek Configuration
+
+```env
+DEEPSEEK_API_KEY=sk-xxx     # API key
+DEEPSEEK_BASE_URL=https://api.deepseek.com
+DEEPSEEK_MODEL=deepseek-chat
+```
+
+#### Email Configuration
+
+```env
+SMTP_HOST=smtp.gmail.com    # SMTP server
+SMTP_PORT=587               # SMTP port
+SMTP_USER=your@gmail.com    # Username
+SMTP_PASSWORD=app_password  # Password/App-specific password
+EMAIL_FROM=your@gmail.com   # Sender
+EMAIL_TO=["recipient@example.com"]  # Recipients (JSON array)
+```
+
+### 📊 Logging
+
+Log files are located in `logs/` directory:
+- Rotate daily
+- Retain 30 days
+- Auto-compressed
+
+View logs:
+```bash
+tail -f logs/app_$(date +%Y-%m-%d).log
+```
+
+### 🧪 Testing
+
+```bash
+# Run all tests
+make test
+
+# Run tests with coverage
+make test-cov
+
+# Quick test (parallel)
+make test-fast
+
+# Run unit tests only
+make test-unit
+
+# Type checking
+make check
+```
+
+**Test Coverage**:
+- ✅ Fibonacci backoff retry mechanism
+- ✅ Multi-date scheduling support
+- ✅ Crawler, analyzer, notifier
+- ✅ Error handling and edge cases
+
+**Current Coverage Goal**: ≥ 80%
+
+### 🔮 Future Plans
+
+- [ ] FastAPI interface service
+- [ ] Data persistence (PostgreSQL)
+- [ ] Multi-train monitoring
+- [ ] Web management interface
+- [ ] browser-use automatic booking
+
+### 📝 Development Guide
+
+#### Adding a New Crawler Implementation
+
+1. Implement `ITicketCrawler` interface
+2. Register in `container.py`
+3. No need to modify other code
+
+#### Adding a New Notification Method
+
+1. Implement `INotifier` interface
+2. Register in `container.py`
+3. Support multiple notifiers in parallel
+
+### 📄 License
+
+MIT License
+
+### 🙏 Acknowledgments
+
+- [Pydantic](https://pydantic.dev/) - Data validation
+- [dependency-injector](https://python-dependency-injector.ets-labs.org/) - Dependency injection
+- [APScheduler](https://apscheduler.readthedocs.io/) - Task scheduling
+- [DeepSeek](https://www.deepseek.com/) - AI analysis
+
+---
+
+<a name="中文"></a>
+
+## 中文
+
+[![CI](https://github.com/Wangggym/early-bird-train/workflows/CI%20-%20Code%20Quality%20%26%20Tests/badge.svg)](https://github.com/Wangggym/early-bird-train/actions)
+[![CD](https://github.com/Wangggym/early-bird-train/workflows/CD%20-%20Build%20%26%20Deploy/badge.svg)](https://github.com/Wangggym/early-bird-train/actions)
+[![Tests](https://img.shields.io/badge/tests-48%20passed-brightgreen)]()
+[![Coverage](https://img.shields.io/badge/coverage-73%25-yellow)]()
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue)]()
+[![Docker](https://img.shields.io/docker/v/_/early-bird-train?label=docker&color=2496ED)]()
+[![License](https://img.shields.io/badge/license-MIT-blue)]()
+
+### ✨ 特性
 
 - 🎯 **精准监控**：支持多日期调度，灵活配置监控时间
 - 🔄 **智能重试**：斐波那契退避策略，避免因延迟错过票
@@ -21,7 +288,7 @@
 - 🐳 **容器部署**：Docker一键部署
 - 📊 **全面日志**：结构化日志，便于追踪
 
-## 🏛️ 架构设计
+### 🏛️ 架构设计
 
 ```
 分层架构 (Clean Architecture)
@@ -39,7 +306,7 @@
 └── Container (依赖注入容器)
 ```
 
-### 设计原则
+#### 设计原则
 
 - ✅ **SOLID原则**
 - ✅ **依赖倒置**（面向接口编程）
@@ -47,25 +314,25 @@
 - ✅ **强类型**（全面使用Type Hints + Pydantic）
 - ✅ **单一职责**（每个类只做一件事）
 
-## 🚀 快速开始
+### 🚀 快速开始
 
 > 📖 详细教程请查看 [QUICKSTART.md](QUICKSTART.md)
 
-### 1. 初始化环境
+#### 1. 初始化环境
 
 ```bash
 make gen
 source .venv/bin/activate
 ```
 
-### 2. 配置环境变量
+#### 2. 配置环境变量
 
 ```bash
 cp .env.example .env
 vim .env  # 填写 DEEPSEEK_API_KEY, SMTP配置, EMAIL_TO
 ```
 
-### 3. 运行
+#### 3. 运行
 
 ```bash
 # 开发测试（运行一次）
@@ -79,7 +346,7 @@ make docker-build
 make docker-up
 ```
 
-### 常用命令
+#### 常用命令
 
 | 命令 | 说明 |
 |------|------|
@@ -89,28 +356,28 @@ make docker-up
 | `make dev` | 开发测试 |
 | `make help` | 查看所有命令 |
 
-## 🐳 Docker部署
+### 🐳 Docker部署
 
-### 构建并运行
+#### 构建并运行
 
 ```bash
 cd docker
 docker-compose up -d
 ```
 
-### 查看日志
+#### 查看日志
 
 ```bash
 docker-compose logs -f
 ```
 
-### 停止服务
+#### 停止服务
 
 ```bash
 docker-compose down
 ```
 
-## 📁 项目结构
+### 📁 项目结构
 
 ```
 early-bird-train/
@@ -141,9 +408,9 @@ early-bird-train/
 └── README.md
 ```
 
-## 🔧 配置说明
+### 🔧 配置说明
 
-### 监控配置
+#### 监控配置
 
 ```env
 DEPARTURE_STATION=大邑      # 出发站
@@ -152,7 +419,7 @@ TRAIN_NUMBER=C3380          # 车次号
 DAYS_AHEAD=15               # 提前天数
 ```
 
-### 调度配置
+#### 调度配置
 
 ```env
 # 支持多个日期（JSON数组格式）
@@ -164,9 +431,7 @@ MAX_RETRIES=5                # 重试次数（斐波那契退避）
 
 **日期编号**: 0=周一, 1=周二, 2=周三, 3=周四, 4=周五, 5=周六, 6=周日
 
-📖 **新功能详解**: [FEATURES.md](FEATURES.md)
-
-### DeepSeek配置
+#### DeepSeek配置
 
 ```env
 DEEPSEEK_API_KEY=sk-xxx     # API密钥
@@ -174,7 +439,7 @@ DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_MODEL=deepseek-chat
 ```
 
-### 邮件配置
+#### 邮件配置
 
 ```env
 SMTP_HOST=smtp.gmail.com    # SMTP服务器
@@ -185,7 +450,7 @@ EMAIL_FROM=your@gmail.com   # 发件人
 EMAIL_TO=["recipient@example.com"]  # 收件人（JSON数组）
 ```
 
-## 📊 日志
+### 📊 日志
 
 日志文件位于 `logs/` 目录：
 - 按天轮转
@@ -197,7 +462,7 @@ EMAIL_TO=["recipient@example.com"]  # 收件人（JSON数组）
 tail -f logs/app_$(date +%Y-%m-%d).log
 ```
 
-## 🧪 测试
+### 🧪 测试
 
 ```bash
 # 运行所有测试
@@ -216,8 +481,6 @@ make test-unit
 make check
 ```
 
-📖 **详细测试文档**: [TESTING.md](TESTING.md)
-
 **测试覆盖的功能**:
 - ✅ 斐波那契退避重试机制
 - ✅ 多日期调度支持
@@ -226,7 +489,7 @@ make check
 
 **当前覆盖率目标**: ≥ 80%
 
-## 🔮 未来计划
+### 🔮 未来计划
 
 - [ ] FastAPI接口服务
 - [ ] 数据持久化（PostgreSQL）
@@ -234,25 +497,25 @@ make check
 - [ ] Web管理界面
 - [ ] browser-use自动购票
 
-## 📝 开发指南
+### 📝 开发指南
 
-### 添加新的爬虫实现
+#### 添加新的爬虫实现
 
 1. 实现 `ITicketCrawler` 接口
 2. 在 `container.py` 中注册
 3. 无需修改其他代码
 
-### 添加新的通知方式
+#### 添加新的通知方式
 
 1. 实现 `INotifier` 接口
 2. 在 `container.py` 中注册
 3. 支持多个通知器并行
 
-## 📄 许可证
+### 📄 许可证
 
 MIT License
 
-## 🙏 致谢
+### 🙏 致谢
 
 - [Pydantic](https://pydantic.dev/) - 数据验证
 - [dependency-injector](https://python-dependency-injector.ets-labs.org/) - 依赖注入

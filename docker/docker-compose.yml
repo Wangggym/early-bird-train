@@ -2,11 +2,11 @@ version: '3.8'
 
 services:
   early-bird-train:
-    # 使用 Docker Hub 镜像（生产环境）
-    # 如果需要本地构建，请取消注释下面的 build 部分
+    # Use Docker Hub image (production environment)
+    # If you need local build, uncomment the build section below
     image: ${DOCKERHUB_USERNAME:-your-dockerhub-username}/early-bird-train:latest
     
-    # 本地构建（开发环境）
+    # Local build (development environment)
     # build:
     #   context: ..
     #   dockerfile: docker/Dockerfile
@@ -21,6 +21,6 @@ services:
     environment:
       - TZ=Asia/Shanghai
     
-    # 如果只想运行一次，使用:
+    # If you only want to run once, use:
     # command: python main.py --once
 

@@ -2,30 +2,30 @@
 
 
 class DomainException(Exception):
-    """领域异常基类"""
+    """Domain exception base class"""
 
     pass
 
 
 class CrawlerException(DomainException):
-    """爬虫异常"""
+    """Crawler exception"""
 
     pass
 
 
 class AnalyzerException(DomainException):
-    """分析器异常"""
+    """Analyzer exception"""
 
     pass
 
 
 class NotifierException(DomainException):
-    """通知器异常"""
+    """Notifier exception"""
 
     pass
 
 
 class ConfigurationException(DomainException):
-    """配置异常"""
+    """Configuration exception"""
 
     pass

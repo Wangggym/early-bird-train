@@ -9,8 +9,8 @@ beautifulsoup4>=4.12.3
 lxml>=5.3.0
 
 # AI
-openai>=1.0.0  # DeepSeek兼容OpenAI接口
-httpx[socks]>=0.25.0  # SOCKS代理支持
+openai>=1.0.0  # DeepSeek compatible with OpenAI interface
+httpx[socks]>=0.25.0  # SOCKS proxy support
 
 # Scheduling
 apscheduler>=3.10.4

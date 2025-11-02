@@ -10,16 +10,16 @@ from src.domain.models import SeatInfo, SeatType, TicketQuery, TicketQueryResult
 
 
 class CtripTicketCrawler(ITicketCrawler):
-    """携程火车票爬虫实现"""
+    """Ctrip train ticket crawler implementation"""
 
     BASE_URL = "https://trains.ctrip.com/webapp/train/list"
 
     def __init__(self, timeout: int = 10) -> None:
         """
-        初始化爬虫
+        Initialize crawler
 
         Args:
-            timeout: 请求超时时间（秒）
+            timeout: Request timeout in seconds
         """
         self._timeout = timeout
         self._session = requests.Session()
@@ -35,14 +35,14 @@ class CtripTicketCrawler(ITicketCrawler):
         )
 
     def fetch_tickets(self, query: TicketQuery) -> TicketQueryResult:
-        """获取车票信息"""
+        """Fetch ticket information"""
         logger.info(f"Fetching tickets: {query.departure_station} -> {query.arrival_station} on {query.departure_date}")
 
         try:
             html_content = self._fetch_html(query)
             trains = self._parse_trains(html_content)
 
-            # 如果指定了车次，只返回该车次
+            # If train number is specified, only return that train
             if query.train_number:
                 trains = [t for t in trains if t.train_number == query.train_number]
 
@@ -58,7 +58,7 @@ class CtripTicketCrawler(ITicketCrawler):
             raise CrawlerException(f"Failed to fetch tickets: {e}") from e
 
     def _fetch_html(self, query: TicketQuery) -> str:
-        """获取HTML页面"""
+        """Fetch HTML page"""
         params = {
             "ticketType": "0",
             "dStation": query.departure_station,
@@ -70,7 +70,7 @@ class CtripTicketCrawler(ITicketCrawler):
             "highSpeedOnly": "1",
         }
 
-        # 构建完整URL用于日志
+        # Build complete URL for logging
         from urllib.parse import urlencode
 
         full_url = f"{self.BASE_URL}?{urlencode(params)}"
@@ -86,18 +86,18 @@ class CtripTicketCrawler(ITicketCrawler):
         return response.text
 
     def _parse_trains(self, html: str) -> list[TrainInfo]:
-        """解析车次列表"""
+        """Parse train list"""
         import json
 
         soup = BeautifulSoup(html, "lxml")
 
-        # 查找 id="__NEXT_DATA__" 的 script 标签
+        # Find script tag with id="__NEXT_DATA__"
         next_data_script = soup.find("script", id="__NEXT_DATA__", type="application/json")
 
         if next_data_script and next_data_script.string:
             try:
                 data = json.loads(next_data_script.string)
-                # 遍历找到trainList
+                # Find trainList
                 train_list = self._find_train_list(data)
                 if train_list:
                     return [self._parse_train(train_data) for train_data in train_list]
@@ -107,18 +107,18 @@ class CtripTicketCrawler(ITicketCrawler):
         return []
 
     def _find_train_list(self, obj: any, depth: int = 0) -> list | None:
-        """递归查找trainInfoList或trainList"""
-        if depth > 10:  # 防止递归过深
+        """Recursively find trainInfoList or trainList"""
+        if depth > 10:  # Prevent recursion too deep
             return None
 
         if isinstance(obj, dict):
-            # 查找trainInfoList或trainList键
+            # Find trainInfoList or trainList keys
             if "trainInfoList" in obj and isinstance(obj["trainInfoList"], list):
                 return obj["trainInfoList"]
             if "trainList" in obj and isinstance(obj["trainList"], list):
                 return obj["trainList"]
 
-            # 递归查找
+            # Recursive search
             for value in obj.values():
                 result = self._find_train_list(value, depth + 1)
                 if result:
@@ -133,7 +133,7 @@ class CtripTicketCrawler(ITicketCrawler):
         return None
 
     def _parse_train(self, data: dict) -> TrainInfo:
-        """解析单个车次数据"""
+        """Parse single train data"""
         seats = [self._parse_seat(seat_data) for seat_data in data.get("seatItemInfoList", [])]
 
         return TrainInfo(
@@ -148,10 +148,10 @@ class CtripTicketCrawler(ITicketCrawler):
         )
 
     def _parse_seat(self, data: dict) -> SeatInfo:
-        """解析座位信息"""
+        """Parse seat information"""
         seat_name = data["seatName"]
 
-        # 映射座位类型
+        # Map seat types
         seat_type_map = {
             "二等座": SeatType.SECOND_CLASS,
             "一等座": SeatType.FIRST_CLASS,

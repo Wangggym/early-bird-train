@@ -10,10 +10,10 @@ from tests.fixtures.mock_data import mock_analysis
 
 
 class TestEmailNotifier:
-    """测试邮件通知器"""
+    """Test email notifier"""
 
     def test_notifier_initialization(self):
-        """测试通知器初始化"""
+        """Test notifier initialization"""
         notifier = EmailNotifier(
             smtp_host="smtp.gmail.com",
             smtp_port=587,
@@ -31,7 +31,7 @@ class TestEmailNotifier:
 
     @patch("smtplib.SMTP")
     def test_send_notification_success(self, mock_smtp):
-        """测试成功发送通知"""
+        """Test successful notification sending"""
         mock_server = Mock()
         mock_smtp.return_value = mock_server
 
@@ -47,14 +47,14 @@ class TestEmailNotifier:
         analysis = mock_analysis(has_ticket=True)
         notifier.send(analysis)
 
-        # 验证SMTP调用
+        # Verify SMTP calls
         assert mock_server.starttls.call_count == 1
         assert mock_server.login.call_count == 1
         assert mock_server.sendmail.call_count == 1
 
     @patch("smtplib.SMTP")
     def test_send_notification_multiple_recipients(self, mock_smtp):
-        """测试多个收件人"""
+        """Test multiple recipients"""
         mock_server = Mock()
         mock_smtp.return_value = mock_server
 
@@ -74,7 +74,7 @@ class TestEmailNotifier:
 
     @patch("smtplib.SMTP")
     def test_send_notification_smtp_error(self, mock_smtp):
-        """测试SMTP错误"""
+        """Test SMTP error"""
         mock_server = Mock()
         mock_server.starttls.side_effect = Exception("SMTP Error")
         mock_smtp.return_value = mock_server
@@ -97,7 +97,7 @@ class TestEmailNotifier:
 
     @patch("smtplib.SMTP")
     def test_send_with_no_tickets(self, mock_smtp):
-        """测试无票通知"""
+        """Test notification with no tickets"""
         mock_server = Mock()
         mock_smtp.return_value = mock_server
 
@@ -116,7 +116,7 @@ class TestEmailNotifier:
         assert mock_server.sendmail.call_count == 1
 
     def test_different_smtp_ports(self):
-        """测试不同SMTP端口"""
+        """Test different SMTP ports"""
         ports = [25, 465, 587, 2525]
 
         for port in ports:
@@ -132,10 +132,10 @@ class TestEmailNotifier:
 
 
 class TestEmailNotifierConfiguration:
-    """测试邮件配置"""
+    """Test email configuration"""
 
     def test_gmail_configuration(self):
-        """测试Gmail配置"""
+        """Test Gmail configuration"""
         notifier = EmailNotifier(
             smtp_host="smtp.gmail.com",
             smtp_port=587,
@@ -149,7 +149,7 @@ class TestEmailNotifierConfiguration:
         assert notifier._smtp_port == 587
 
     def test_qq_mail_configuration(self):
-        """测试QQ邮箱配置"""
+        """Test QQ Mail configuration"""
         notifier = EmailNotifier(
             smtp_host="smtp.qq.com",
             smtp_port=587,
@@ -162,7 +162,7 @@ class TestEmailNotifierConfiguration:
         assert notifier._smtp_host == "smtp.qq.com"
 
     def test_163_mail_configuration(self):
-        """测试163邮箱配置"""
+        """Test 163 Mail configuration"""
         notifier = EmailNotifier(
             smtp_host="smtp.163.com",
             smtp_port=465,

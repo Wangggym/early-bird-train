@@ -11,10 +11,10 @@ from src.domain.exceptions import DomainException
 
 
 def setup_logging(log_level: str) -> None:
-    """配置日志"""
-    logger.remove()  # 移除默认handler
+    """Configure logging"""
+    logger.remove()  # Remove default handler
 
-    # 控制台输出
+    # Console output
     logger.add(
         sys.stdout,
         format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> | <level>{level: <8}</level> | <level>{message}</level>",
@@ -22,7 +22,7 @@ def setup_logging(log_level: str) -> None:
         colorize=True,
     )
 
-    # 文件输出
+    # File output
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
 
@@ -30,14 +30,14 @@ def setup_logging(log_level: str) -> None:
         log_dir / "app_{time:YYYY-MM-DD}.log",
         format="{time:YYYY-MM-DD HH:mm:ss} | {level: <8} | {name}:{function}:{line} | {message}",
         level=log_level,
-        rotation="00:00",  # 每天午夜轮转
-        retention="30 days",  # 保留30天
-        compression="zip",  # 压缩旧日志
+        rotation="00:00",  # Rotate at midnight daily
+        retention="30 days",  # Keep logs for 30 days
+        compression="zip",  # Compress old logs
     )
 
 
 def run_once(container: Container) -> None:
-    """运行一次监控任务（用于测试）"""
+    """Run monitoring task once (for testing)"""
     logger.info("Running ticket monitoring once...")
 
     config = container.config()
@@ -52,13 +52,13 @@ def run_once(container: Container) -> None:
 
 
 def run_scheduler(container: Container) -> None:
-    """启动定时调度器"""
+    """Start scheduled task scheduler"""
     logger.info("Starting scheduled monitoring...")
 
     config = container.config()
     scheduler = container.scheduler()
 
-    # 创建定时任务
+    # Create scheduled job
     def job():
         try:
             run_once(container)
@@ -67,7 +67,7 @@ def run_scheduler(container: Container) -> None:
         except Exception as e:
             logger.exception(f"Unexpected error in monitoring job: {e}")
 
-    # 安排多个每周定时任务
+    # Schedule multiple weekly jobs
     scheduler.schedule_multiple_weekly_jobs(
         days_of_week=config.schedule_days_of_week,
         hour=config.schedule_hour,
@@ -75,9 +75,9 @@ def run_scheduler(container: Container) -> None:
         job_func=job,
     )
 
-    # 格式化日期名称
-    day_names_cn = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-    scheduled_days = ", ".join([day_names_cn[d] for d in config.schedule_days_of_week])
+    # Format day names
+    day_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    scheduled_days = ", ".join([day_names[d] for d in config.schedule_days_of_week])
 
     logger.info(
         f"Scheduled to run on {scheduled_days} "
@@ -85,7 +85,7 @@ def run_scheduler(container: Container) -> None:
         f"(max_retries={config.max_retries})"
     )
 
-    # 启动调度器（阻塞运行）
+    # Start scheduler (blocking)
     try:
         scheduler.start()
     except (KeyboardInterrupt, SystemExit):
@@ -94,19 +94,19 @@ def run_scheduler(container: Container) -> None:
 
 
 def main() -> int:
-    """主函数"""
+    """Main entry point"""
     try:
-        # 创建容器
+        # Create container
         container = Container()
         config = container.config()
 
-        # 配置日志
+        # Configure logging
         setup_logging(config.log_level)
 
         logger.info(f"Starting {config.app_name}...")
         logger.info(f"Monitoring: {config.train_number} ({config.departure_station} -> {config.arrival_station})")
 
-        # 根据命令行参数决定运行模式
+        # Determine running mode based on command line arguments
         if len(sys.argv) > 1 and sys.argv[1] == "--once":
             run_once(container)
         else:

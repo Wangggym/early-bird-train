@@ -12,7 +12,7 @@ from src.domain.models import AnalysisResult
 
 
 class EmailNotifier(INotifier):
-    """邮件通知器实现"""
+    """Email notifier implementation"""
 
     def __init__(
         self,
@@ -24,15 +24,15 @@ class EmailNotifier(INotifier):
         to_addrs: list[str],
     ) -> None:
         """
-        初始化邮件通知器
+        Initialize email notifier
 
         Args:
-            smtp_host: SMTP服务器地址
-            smtp_port: SMTP服务器端口
-            smtp_user: SMTP用户名
-            smtp_password: SMTP密码
-            from_addr: 发件人邮箱
-            to_addrs: 收件人邮箱列表
+            smtp_host: SMTP server address
+            smtp_port: SMTP server port
+            smtp_user: SMTP username
+            smtp_password: SMTP password
+            from_addr: Sender email address
+            to_addrs: Recipient email list
         """
         self._smtp_host = smtp_host
         self._smtp_port = smtp_port
@@ -42,7 +42,7 @@ class EmailNotifier(INotifier):
         self._to_addrs = to_addrs
 
     def send(self, analysis: AnalysisResult) -> None:
-        """发送邮件通知"""
+        """Send email notification"""
         logger.info(f"Sending email notification to {', '.join(self._to_addrs)}")
 
         try:
@@ -58,17 +58,17 @@ class EmailNotifier(INotifier):
             raise NotifierException(f"Failed to send notification: {e}") from e
 
     def _build_subject(self, analysis: AnalysisResult) -> str:
-        """构建邮件主题"""
+        """Build email subject"""
         query = analysis.raw_data.query
-        status = "✅ 有票" if analysis.has_ticket else "❌ 无票"
+        status = "✅ Tickets Available" if analysis.has_ticket else "❌ No Tickets"
 
-        return f"【火车票监控】{query.train_number} {status} - {query.departure_date}"
+        return f"[Train Ticket Monitor] {query.train_number} {status} - {query.departure_date}"
 
     def _build_body(self, analysis: AnalysisResult) -> str:
-        """构建邮件正文"""
+        """Build email body"""
         train = analysis.raw_data.trains[0] if analysis.raw_data.trains else None
 
-        # HTML格式邮件
+        # HTML email format
         html = f"""
 <html>
 <head>
@@ -87,15 +87,15 @@ class EmailNotifier(INotifier):
 <body>
     <div class="container">
         <div class="header {"no-ticket" if not analysis.has_ticket else ""}">
-            <h2>🚄 火车票监控通知</h2>
-            <p>查询时间：{analysis.analyzed_at.strftime("%Y-%m-%d %H:%M:%S")}</p>
+            <h2>🚄 Train Ticket Monitor Notification</h2>
+            <p>Query Time: {analysis.analyzed_at.strftime("%Y-%m-%d %H:%M:%S")}</p>
         </div>
 
         <div class="content">
-            <h3>📊 分析结果</h3>
+            <h3>📊 Analysis Results</h3>
             <p><strong>{analysis.summary}</strong></p>
 
-            <h3>💡 购票建议</h3>
+            <h3>💡 Booking Recommendations</h3>
             <p>{analysis.recommendation}</p>
         </div>
 """
@@ -104,35 +104,35 @@ class EmailNotifier(INotifier):
             seats_html = ""
             for seat in train.seats:
                 status_class = "available" if seat.is_available else "unavailable"
-                status_text = "✅ 可预订" if seat.bookable else "❌ 不可订"
+                status_text = "✅ Bookable" if seat.bookable else "❌ Not Bookable"
 
                 seats_html += f"""
                 <div class="seat-info {status_class}">
                     <strong>{seat.seat_type.value}</strong><br>
-                    价格：¥{seat.price} | 余票：{seat.inventory_display} | {status_text}
+                    Price: ¥{seat.price} | Available: {seat.inventory_display} | {status_text}
                 </div>
 """
 
             html += f"""
         <div class="content">
-            <h3>🎫 车次详情</h3>
+            <h3>🎫 Train Details</h3>
             <p>
-                <strong>车次：</strong>{train.train_number}<br>
-                <strong>线路：</strong>{train.departure_station} → {train.arrival_station}<br>
-                <strong>发车：</strong>{train.departure_time}<br>
-                <strong>到达：</strong>{train.arrival_time}<br>
-                <strong>运行时长：</strong>{train.duration}
+                <strong>Train Number:</strong> {train.train_number}<br>
+                <strong>Route:</strong> {train.departure_station} → {train.arrival_station}<br>
+                <strong>Departure:</strong> {train.departure_time}<br>
+                <strong>Arrival:</strong> {train.arrival_time}<br>
+                <strong>Duration:</strong> {train.duration}
             </p>
 
-            <h3>💺 座位信息</h3>
+            <h3>💺 Seat Information</h3>
             {seats_html}
         </div>
 """
 
         html += """
         <div class="footer">
-            <p>Early Bird Train 自动监控系统</p>
-            <p>此邮件由系统自动发送，请勿回复</p>
+            <p>Early Bird Train Automatic Monitoring System</p>
+            <p>This email is automatically sent by the system, please do not reply</p>
         </div>
     </div>
 </body>
@@ -142,39 +142,39 @@ class EmailNotifier(INotifier):
         return html
 
     def _send_email(self, subject: str, body: str) -> None:
-        """发送邮件"""
+        """Send email"""
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = self._from_addr
         msg["To"] = ", ".join(self._to_addrs)
 
-        # 添加HTML正文
+        # Add HTML body
         html_part = MIMEText(body, "html", "utf-8")
         msg.attach(html_part)
 
-        # 发送邮件 - 使用简单方式避免quit时的SSL错误
+        # Send email - use simple method to avoid SSL errors on quit
         server = None
         try:
             if self._smtp_port == 465:
-                # SSL连接
+                # SSL connection
                 server = smtplib.SMTP_SSL(self._smtp_host, self._smtp_port, timeout=30)
             else:
-                # STARTTLS连接
+                # STARTTLS connection
                 server = smtplib.SMTP(self._smtp_host, self._smtp_port, timeout=30)
                 server.starttls()
 
-            # 登录并发送
+            # Login and send
             server.login(self._smtp_user, self._smtp_password)
             server.sendmail(self._from_addr, self._to_addrs, msg.as_string())
 
-            # 尝试正常关闭，如果失败也不影响（邮件已发送）
+            # Try to close normally, failure doesn't matter (email already sent)
             try:
                 server.quit()
             except Exception:
-                pass  # 忽略quit时的错误
+                pass  # Ignore errors on quit
 
         finally:
-            # 确保连接关闭
+            # Ensure connection is closed
             if server:
                 try:
                     server.close()

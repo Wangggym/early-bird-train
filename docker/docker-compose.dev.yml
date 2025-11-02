@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   early-bird-train:
-    # 本地开发环境 - 本地构建镜像
+    # Local development environment - build image locally
     build:
       context: ..
       dockerfile: docker/Dockerfile
@@ -17,6 +17,6 @@ services:
     environment:
       - TZ=Asia/Shanghai
     
-    # 如果只想运行一次，使用:
+    # If you only want to run once, use:
     # command: python main.py --once
 

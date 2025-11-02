@@ -1,294 +1,340 @@
 # 📋 Early Bird Train - TODO List
 
-## ✅ 已完成任务 (2025-10-30)
+## ✅ Completed Tasks (2025-10-30)
 
-### 1. 核心功能实现
-- [x] **爬虫模块** - 携程火车票数据抓取
-  - [x] 解析 Next.js `__NEXT_DATA__` JSON 数据
-  - [x] 支持指定车次查询（C3380）
-  - [x] 解析座位信息（类型、价格、余票、可订性）
-  - [x] 错误处理和日志记录
+### 1. Core Features
+- [x] **Crawler Module** - Ctrip train ticket data crawling
+  - [x] Parse Next.js `__NEXT_DATA__` JSON data
+  - [x] Support specified train query (C3380)
+  - [x] Parse seat information (type, price, inventory, bookability)
+  - [x] Error handling and logging
 
-- [x] **数据分析模块** - AI/规则分析
-  - [x] DeepSeek AI 智能分析（可选）
-  - [x] 规则判断降级方案（无需 API）
-  - [x] 判断是否有坐票（非站票）
+- [x] **Data Analysis Module** - AI/Rule analysis
+  - [x] DeepSeek AI intelligent analysis (optional)
+  - [x] Rule-based fallback (no API needed)
+  - [x] Check for seated tickets (non-standing)
 
-- [x] **邮件通知模块** - QQ邮箱 SMTP
-  - [x] HTML 格式邮件模板
-  - [x] 车次、座位、价格信息展示
-  - [x] SSL/STARTTLS 连接支持
-  - [x] 处理 QQ 邮箱 quit 时的 SSL 错误
+- [x] **Email Notification Module** - SMTP
+  - [x] HTML email template
+  - [x] Train, seat, price information display
+  - [x] SSL/STARTTLS connection support
+  - [x] Handle SSL errors on QQ Mail quit
 
-- [x] **定时任务模块** - APScheduler
-  - [x] 每周一 15:30 自动运行
-  - [x] 提前 15 天查询下周一的票
-  - [x] 可配置调度时间
+- [x] **Scheduled Task Module** - APScheduler
+  - [x] Auto-run every Monday at 15:30
+  - [x] Query tickets 15 days ahead
+  - [x] Configurable schedule time
 
-### 2. 架构设计
-- [x] **Clean Architecture** 分层设计
-  - [x] Domain 层：模型、接口、异常
-  - [x] Infrastructure 层：爬虫、AI、邮件、调度
-  - [x] Application 层：业务逻辑服务
-  - [x] Config 层：配置管理
+### 2. Architecture Design
+- [x] **Clean Architecture** layered design
+  - [x] Domain layer: models, interfaces, exceptions
+  - [x] Infrastructure layer: crawler, AI, email, scheduler
+  - [x] Application layer: business logic services
+  - [x] Config layer: configuration management
 
-- [x] **依赖注入** (dependency-injector)
-  - [x] 容器配置
-  - [x] 服务解耦
-  - [x] 易于测试和维护
+- [x] **Dependency Injection** (dependency-injector)
+  - [x] Container configuration
+  - [x] Service decoupling
+  - [x] Easy to test and maintain
 
-- [x] **强类型系统**
-  - [x] Pydantic 模型验证
-  - [x] Type Hints 类型标注
-  - [x] mypy 类型检查配置
+- [x] **Strong Type System**
+  - [x] Pydantic model validation
+  - [x] Type Hints annotations
+  - [x] mypy type checking configuration
 
-### 3. 开发工具
-- [x] **包管理** - uv
-  - [x] 快速依赖安装
-  - [x] 虚拟环境管理
-  - [x] pyproject.toml 配置
+### 3. Development Tools
+- [x] **Package Management** - uv
+  - [x] Fast dependency installation
+  - [x] Virtual environment management
+  - [x] pyproject.toml configuration
 
-- [x] **代码质量**
-  - [x] ruff 格式化和 lint
-  - [x] mypy 类型检查
-  - [x] 自动化 Makefile
+- [x] **Code Quality**
+  - [x] ruff formatting and linting
+  - [x] mypy type checking
+  - [x] Automated Makefile
 
-- [x] **文档**
-  - [x] README.md - 项目介绍
-  - [x] QUICKSTART.md - 快速开始
-  - [x] .env.example - 配置模板
-  - [x] 代码注释和类型标注
+- [x] **Documentation**
+  - [x] README.md - Project introduction
+  - [x] QUICKSTART.md - Quick start
+  - [x] .env.example - Configuration template
+  - [x] Code comments and type annotations
 
-### 4. 部署支持
-- [x] **Docker 容器化**
+### 4. Deployment Support
+- [x] **Docker Containerization**
   - [x] Dockerfile
   - [x] docker-compose.yml
-  - [x] 环境变量配置
+  - [x] Environment variable configuration
 
-- [x] **配置管理**
-  - [x] .env 环境变量
+- [x] **Configuration Management**
+  - [x] .env environment variables
   - [x] Pydantic Settings
-  - [x] .gitignore 敏感信息保护
+  - [x] .gitignore sensitive information protection
 
-### 5. 测试和调试
-- [x] **测试脚本**
-  - [x] test_crawler.py - 爬虫测试（无需完整配置）
-  - [x] make test-crawler 命令
+### 5. Testing and Debugging
+- [x] **Test Scripts**
+  - [x] test_crawler.py - Crawler test (no full configuration needed)
+  - [x] make test-crawler command
   
-- [x] **日志系统**
-  - [x] loguru 日志记录
-  - [x] 彩色输出
-  - [x] 文件日志（logs/）
+- [x] **Logging System**
+  - [x] loguru logging
+  - [x] Color output
+  - [x] File logs (logs/)
 
-### 6. 新功能实现 (2025-11-02)
-- [x] **斐波那契退避重试机制**
-  - [x] 查询失败自动重试（1s, 1s, 2s, 3s, 5s...）
-  - [x] 可配置重试次数（MAX_RETRIES）
-  - [x] 智能退避策略避免频繁请求
+### 6. New Features (2025-11-02)
+- [x] **Fibonacci Backoff Retry Mechanism**
+  - [x] Auto-retry on query failure (1s, 1s, 2s, 3s, 5s...)
+  - [x] Configurable retry count (MAX_RETRIES)
+  - [x] Smart backoff strategy to avoid frequent requests
 
-- [x] **多日期调度支持**
-  - [x] 支持多个工作日调度（周一、周三、周五等）
-  - [x] JSON数组配置格式（SCHEDULE_DAYS_OF_WEEK）
-  - [x] 灵活的时间配置
+- [x] **Multi-date Scheduling Support**
+  - [x] Support multiple weekday scheduling (Monday, Wednesday, Friday, etc.)
+  - [x] JSON array configuration format (SCHEDULE_DAYS_OF_WEEK)
+  - [x] Flexible time configuration
 
-- [x] **日期计算修复**
-  - [x] 修正 DAYS_AHEAD 语义（今天算第1天）
-  - [x] 移除自动调整到周一的逻辑
-  - [x] 精确查询指定日期的车票
+- [x] **Date Calculation Fix**
+  - [x] Correct DAYS_AHEAD semantics (today is day 1)
+  - [x] Remove automatic adjustment to Monday logic
+  - [x] Precise query for specified date tickets
 
-- [x] **调试增强**
-  - [x] 打印查询 URL 方便验证
-  - [x] 显示今天日期和目标日期
-  - [x] 详细的日志输出
+- [x] **Debugging Enhancements**
+  - [x] Print query URL for verification
+  - [x] Display today's date and target date
+  - [x] Detailed log output
 
-### 7. 完整测试套件 (2025-11-02)
-- [x] **单元测试**
-  - [x] pytest 测试框架
-  - [x] 爬虫模块测试（test_crawler.py）
-  - [x] 分析器模块测试（test_analyzer.py）
-  - [x] 通知模块测试（test_notifier.py）
-  - [x] 调度器模块测试（test_scheduler.py）
-  - [x] 业务服务测试（test_ticket_service.py）
-  - [x] Mock 外部依赖（HTTP、SMTP、OpenAI）
+### 7. Complete Test Suite (2025-11-02)
+- [x] **Unit Tests**
+  - [x] pytest testing framework
+  - [x] Crawler module tests (test_crawler.py)
+  - [x] Analyzer module tests (test_analyzer.py)
+  - [x] Notifier module tests (test_notifier.py)
+  - [x] Scheduler module tests (test_scheduler.py)
+  - [x] Business service tests (test_ticket_service.py)
+  - [x] Mock external dependencies (HTTP, SMTP, OpenAI)
 
-- [x] **测试工具**
-  - [x] pytest-cov 代码覆盖率
-  - [x] pytest-mock Mock 工具
-  - [x] pytest-xdist 并行测试
-  - [x] Makefile 测试命令
+- [x] **Test Tools**
+  - [x] pytest-cov code coverage
+  - [x] pytest-mock Mock tools
+  - [x] pytest-xdist parallel testing
+  - [x] Makefile test commands
 
-### 8. 部署文档 (2025-11-02)
-- [x] **本地 Docker 测试**
-  - [x] LOCAL_DOCKER_TEST.md 详细指南
-  - [x] 一键测试命令
-  - [x] 故障排查说明
+### 8. Deployment Documentation (2025-11-02)
+- [x] **Local Docker Testing**
+  - [x] LOCAL_DOCKER_TEST.md detailed guide
+  - [x] One-click test commands
+  - [x] Troubleshooting instructions
 
-- [x] **AWS 部署**
-  - [x] AWS_DEPLOY.md 完整指南
-  - [x] 上传代码方案（rsync/scp/Git）
-  - [x] Docker 环境配置
-  - [x] 开机自启配置
-  - [x] 日志轮转配置
+- [x] **AWS Deployment**
+  - [x] AWS_DEPLOY.md complete guide
+  - [x] Code upload solutions (rsync/scp/Git)
+  - [x] Docker environment configuration
+  - [x] Auto-start on boot configuration
+  - [x] Log rotation configuration
 
-- [x] **Bug 修复**
-  - [x] 修复 .gitignore 忽略 crawler.py 问题
-  - [x] 添加 .dockerignore 确保正确构建
-  - [x] 服务器部署问题排查
+- [x] **Bug Fixes**
+  - [x] Fix .gitignore ignoring crawler.py issue
+  - [x] Add .dockerignore to ensure correct build
+  - [x] Server deployment issue troubleshooting
+
+### 9. CI/CD Implementation (2025-11-02)
+- [x] **GitHub Actions Workflows**
+  - [x] CI workflow (.github/workflows/ci.yml)
+    - Code format checking (ruff format)
+    - Code quality checking (ruff lint)
+    - Type checking (mypy - non-blocking)
+    - Unit tests (pytest + coverage)
+    - Docker build testing
+  - [x] CD workflow (.github/workflows/cd.yml)
+    - Build and push Docker images
+    - Auto-deploy to AWS EC2
+    - Health checks
+    - Support Git Tag version management
+    - Support manual deployment trigger
+
+- [x] **Docker Image Management**
+  - [x] Docker Hub integration
+  - [x] Multi-tag strategy (latest, version, commit-sha)
+  - [x] Image cache optimization
+  - [x] docker-compose.yml environment variable support
+
+- [x] **Documentation and Configuration**
+  - [x] CI_CD.md complete guide
+  - [x] GitHub Secrets configuration instructions
+  - [x] Troubleshooting documentation
+  - [x] Best practice recommendations
+  - [x] README CI/CD badges added
+
+- [x] **Code Optimization**
+  - [x] Fix unused variables (main.py)
+  - [x] Code formatting (ruff format)
+  - [x] Email sending logic optimization (only send when tickets available)
 
 ---
 
-## 🚀 正在进行的任务
+## 🚀 In Progress
 
-### 当前优先级 (P0)
+### Current Priority (P0)
 
-- [ ] **持续集成和部署 (CI/CD)**
-  - [ ] GitHub Actions 工作流配置
-  - [ ] 自动化测试运行
-  - [ ] Docker 镜像自动构建
-  - [ ] 自动部署到 AWS
-  - [ ] 代码质量检查（ruff, mypy）
+- [x] ~~**Continuous Integration and Deployment (CI/CD)**~~ ✅ Completed
+  - [x] GitHub Actions workflow configuration (ci.yml, cd.yml)
+  - [x] Automated test execution (pytest + coverage)
+  - [x] Docker image auto-build and push (Docker Hub)
+  - [x] Auto-deploy to AWS (SSH + Docker Compose)
+  - [x] Code quality checks (ruff, mypy)
+  - [x] CI/CD complete documentation (CI_CD.md)
 
-- [ ] **DeepSeek API 配置**
-  - [ ] 获取 DeepSeek API Key
-  - [ ] 测试 AI 分析功能
-  - [ ] 优化 prompt 提升准确度
-  - [ ] 监控 API 调用情况
+- [ ] **CI/CD Configuration and Testing**
+  - [ ] Configure GitHub Secrets (Docker Hub Token)
+  - [ ] Configure AWS Secrets (SSH Key)
+  - [ ] Test complete CI/CD pipeline
+  - [ ] Verify auto-deployment to production environment
+
+- [ ] **DeepSeek API Configuration**
+  - [ ] Get DeepSeek API Key
+  - [ ] Configure API Key in .env
+  - [ ] Test AI analysis functionality
+  - [ ] Optimize prompt to improve accuracy
+  - [ ] Monitor API call status
 
 ---
 
-## 🚀 未来改进计划
+## 🚀 Future Improvements
 
-### 短期优化 (P1)
+### Short-term Optimizations (P1)
 
-- [x] ~~**增强爬虫稳定性**~~
-  - [x] ~~添加重试机制（网络失败时）~~ ✅ 已完成（斐波那契退避）
-  - [ ] 请求频率限制（避免被封）
-  - [ ] User-Agent 轮换
-  - [ ] Cookie 管理
+- [x] ~~**Enhance Crawler Stability**~~
+  - [x] ~~Add retry mechanism (on network failure)~~ ✅ Completed (Fibonacci backoff)
+  - [ ] Request rate limiting (avoid being blocked)
+  - [ ] User-Agent rotation
+  - [ ] Cookie management
 
-- [ ] **邮件模板优化**
-  - [ ] 添加票价趋势图
-  - [ ] 支持多车次对比
-  - [ ] 紧急票提醒高亮
+- [ ] **Email Template Optimization**
+  - [ ] Add price trend chart
+  - [ ] Support multi-train comparison
+  - [ ] Highlight urgent ticket alerts
 
-### 中期功能 (P2)
+### Medium-term Features (P2)
 
-- [ ] **数据持久化**
-  - [ ] SQLite 存储历史查询
-  - [ ] 票价变化趋势分析
-  - [ ] 余票变化监控
+- [ ] **Data Persistence**
+  - [ ] SQLite storage for historical queries
+  - [ ] Price change trend analysis
+  - [ ] Ticket inventory change monitoring
 
-- [ ] **多通知渠道**
-  - [ ] 微信通知（企业微信 Webhook）
+- [ ] **Multiple Notification Channels**
+  - [ ] WeChat notification (Enterprise WeChat Webhook)
   - [ ] Telegram Bot
-  - [ ] Slack 集成
-  - [ ] 短信通知（阿里云/腾讯云）
+  - [ ] Slack integration
+  - [ ] SMS notification (Alibaba Cloud/Tencent Cloud)
 
-- [ ] **Web 界面** (FastAPI)
-  - [ ] 查询历史记录
-  - [ ] 实时余票查看
-  - [ ] 配置管理界面
-  - [ ] 监控多个车次
+- [ ] **Web Interface** (FastAPI)
+  - [ ] Query history records
+  - [ ] Real-time ticket availability viewing
+  - [ ] Configuration management interface
+  - [ ] Monitor multiple trains
 
-- [x] ~~**单元测试**~~ ✅ 已完成
-  - [x] pytest 测试框架
-  - [x] 爬虫模块测试
-  - [x] 服务层测试
-  - [x] Mock 外部依赖
+- [x] ~~**Unit Tests**~~ ✅ Completed
+  - [x] pytest testing framework
+  - [x] Crawler module tests
+  - [x] Service layer tests
+  - [x] Mock external dependencies
 
-### 长期规划 (P3)
+### Long-term Planning (P3)
 
-- [ ] **自动抢票功能**
-  - [ ] browser-use AI 自动化
-  - [ ] 模拟登录携程
-  - [ ] 自动下单流程
-  - [ ] 支付提醒
+- [ ] **Automatic Ticket Booking**
+  - [ ] browser-use AI automation
+  - [ ] Simulate Ctrip login
+  - [ ] Automatic order flow
+  - [ ] Payment reminders
 
-- [ ] **多用户支持**
-  - [ ] 用户认证系统
-  - [ ] 个性化监控设置
-  - [ ] 独立通知配置
+- [ ] **Multi-user Support**
+  - [ ] User authentication system
+  - [ ] Personalized monitoring settings
+  - [ ] Independent notification configuration
 
-- [ ] **智能推荐**
-  - [ ] 基于历史数据的票价预测
-  - [ ] 最佳购票时机推荐
-  - [ ] 备选方案推荐（中转）
+- [ ] **Intelligent Recommendations**
+  - [ ] Price prediction based on historical data
+  - [ ] Best booking time recommendations
+  - [ ] Alternative route recommendations (transfers)
 
-- [ ] **性能优化**
-  - [ ] 异步并发爬取
-  - [ ] 缓存机制
-  - [ ] 分布式部署
-
----
-
-## 🐛 已知问题
-
-### 已解决
-- [x] ~~QQ 邮箱 SSL quit 错误~~ → 使用 try-except 忽略
-- [x] ~~Gmail SMTP 连接超时~~ → 改用 QQ 邮箱
-- [x] ~~爬虫解析失败~~ → 修正 JSON 字段名 (trainInfoList)
-- [x] ~~.gitignore 误删 crawler.py~~ → 改为 /crawler.py 只忽略根目录
-- [x] ~~Docker 构建缺少文件~~ → 添加 .dockerignore
-- [x] ~~日期计算不准确~~ → 修正为 today + (days_ahead - 1)
-- [x] ~~自动调整到周一~~ → 移除该逻辑
-
-### 待观察
-- [ ] 大邑站 15:30 准时开售的稳定性
-- [ ] 爬虫在高并发时的表现
-- [ ] 邮件发送的成功率
-- [ ] AWS 服务器定时任务稳定性
+- [ ] **Performance Optimization**
+  - [ ] Async concurrent crawling
+  - [ ] Cache mechanism
+  - [ ] Distributed deployment
 
 ---
 
-## 📊 项目进展总结
+## 🐛 Known Issues
 
-### 完成情况（截至 2025-11-02）
-- **开发周期**: 4天（10-30 至 11-02）
-- **代码行数**: ~3000+行（含测试）
-- **Python 文件**: 25+个
-- **测试覆盖率**: 核心模块全覆盖
+### Resolved
+- [x] ~~QQ Mail SSL quit error~~ → Use try-except to ignore
+- [x] ~~Gmail SMTP connection timeout~~ → Switch to QQ Mail
+- [x] ~~Crawler parsing failure~~ → Correct JSON field name (trainInfoList)
+- [x] ~~.gitignore accidentally deleted crawler.py~~ → Change to /crawler.py to only ignore root directory
+- [x] ~~Docker build missing files~~ → Add .dockerignore
+- [x] ~~Date calculation inaccurate~~ → Fix to today + (days_ahead - 1)
+- [x] ~~Auto-adjust to Monday~~ → Remove this logic
 
-### 技术栈
-- **语言**: Python 3.11/3.12
-- **框架**: APScheduler, Pydantic
-- **爬虫**: Requests, BeautifulSoup4, lxml
+### Under Observation
+- [ ] Stability of Dayi station 15:30 ticket release
+- [ ] Crawler performance under high concurrency
+- [ ] Email sending success rate
+- [ ] AWS server scheduled task stability
+
+---
+
+## 📊 Project Progress Summary
+
+### Completion Status (as of 2025-11-02)
+- **Development Cycle**: 4 days (10-30 to 11-02)
+- **Lines of Code**: ~3000+ lines (including tests)
+- **Python Files**: 25+ files
+- **Test Coverage**: Core modules fully covered
+
+### Tech Stack
+- **Language**: Python 3.11/3.12
+- **Frameworks**: APScheduler, Pydantic
+- **Crawler**: Requests, BeautifulSoup4, lxml
 - **AI**: OpenAI SDK (DeepSeek)
-- **邮件**: SMTP (支持 Gmail/QQ/163/阿里云)
-- **容器**: Docker, Docker Compose
-- **测试**: pytest, pytest-cov, pytest-mock, pytest-xdist
-- **工具**: uv, ruff, mypy, loguru
+- **Email**: SMTP (support Gmail/QQ/163/Aliyun)
+- **Container**: Docker, Docker Compose
+- **Testing**: pytest, pytest-cov, pytest-mock, pytest-xdist
+- **Tools**: uv, ruff, mypy, loguru
 
-### 核心亮点
-1. ✨ **架构清晰** - Clean Architecture + DI
-2. ✨ **类型安全** - 全面类型标注
-3. ✨ **易于维护** - 代码质量高
-4. ✨ **开箱即用** - Makefile + Docker
-5. ✨ **文档完善** - README + 部署指南
-6. ✨ **测试完善** - 单元测试全覆盖
-7. ✨ **智能重试** - 斐波那契退避策略
-8. ✨ **灵活调度** - 多日期支持
+### Core Highlights
+1. ✨ **Clear Architecture** - Clean Architecture + DI
+2. ✨ **Type Safety** - Comprehensive type annotations
+3. ✨ **Easy Maintenance** - High code quality
+4. ✨ **Out of the Box** - Makefile + Docker
+5. ✨ **Complete Documentation** - README + Deployment guides
+6. ✨ **Complete Tests** - Full unit test coverage
+7. ✨ **Smart Retry** - Fibonacci backoff strategy
+8. ✨ **Flexible Scheduling** - Multi-date support
 
-### 最近更新（2025-11-02）
-- ✅ 添加完整测试套件
-- ✅ 实现斐波那契退避重试
-- ✅ 支持多日期调度
-- ✅ 修复日期计算逻辑
-- ✅ 完善部署文档
-- ✅ 修复 .gitignore 和 Docker 构建问题
+### Recent Updates (2025-11-02)
+- ✅ Added complete test suite
+- ✅ Implemented Fibonacci backoff retry
+- ✅ Support multi-date scheduling
+- ✅ Fixed date calculation logic
+- ✅ Complete deployment documentation
+- ✅ Fixed .gitignore and Docker build issues
+- ✅ Implemented complete CI/CD pipeline
+- ✅ GitHub Actions automated testing and deployment
+- ✅ Docker Hub image management
+- ✅ Email sending logic optimization
+- ✅ Full English translation of code and documentation
 
-### 下一步行动
-1. 🔄 配置 CI/CD 自动化部署
-2. 🤖 配置 DeepSeek AI 分析
-3. 📊 收集运行数据，优化策略
-4. 🚀 监控生产环境运行状态
+### Next Steps
+1. 🔧 Configure GitHub Secrets to complete CI/CD deployment
+2. 🤖 Configure DeepSeek AI analysis
+3. ✅ Test complete CI/CD pipeline
+4. 📊 Collect production environment runtime data
+5. 🚀 Monitor automated deployment effectiveness
 
 ---
 
-## 📞 支持信息
+## 📞 Support Information
 
-- **项目仓库**: (待填写)
-- **问题反馈**: (待填写)
-- **更新日志**: 见 Git commit history
+- **Project Repository**: (to be filled)
+- **Issue Feedback**: (to be filled)
+- **Changelog**: See Git commit history
 
-最后更新：2025-11-02
-
+Last updated: 2025-11-02

@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """应用配置（强类型）"""
+    """Application settings (strongly typed)"""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -14,39 +14,41 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # === 应用配置 ===
-    app_name: str = Field(default="Early Bird Train", description="应用名称")
-    log_level: str = Field(default="INFO", description="日志级别")
+    # === Application Configuration ===
+    app_name: str = Field(default="Early Bird Train", description="Application name")
+    log_level: str = Field(default="INFO", description="Log level")
 
-    # === 监控配置 ===
-    departure_station: str = Field(default="大邑", description="出发站")
-    arrival_station: str = Field(default="成都南", description="到达站")
-    train_number: str = Field(default="C3380", description="车次号")
-    days_ahead: int = Field(default=15, ge=1, le=30, description="提前天数")
+    # === Monitoring Configuration ===
+    departure_station: str = Field(default="大邑", description="Departure station")
+    arrival_station: str = Field(default="成都南", description="Arrival station")
+    train_number: str = Field(default="C3380", description="Train number")
+    days_ahead: int = Field(default=15, ge=1, le=30, description="Days ahead to query")
 
-    # === 调度配置 ===
-    schedule_days_of_week: list[int] = Field(default=[0], description="调度日期列表（0=周一, 多个日期用逗号分隔）")
-    schedule_hour: int = Field(default=15, ge=0, le=23, description="调度小时")
-    schedule_minute: int = Field(default=30, ge=0, le=59, description="调度分钟")
-    max_retries: int = Field(default=5, ge=1, le=10, description="重试次数（斐波那契退避）")
+    # === Schedule Configuration ===
+    schedule_days_of_week: list[int] = Field(
+        default=[0], description="Schedule days list (0=Monday, multiple days separated by comma)"
+    )
+    schedule_hour: int = Field(default=15, ge=0, le=23, description="Schedule hour")
+    schedule_minute: int = Field(default=30, ge=0, le=59, description="Schedule minute")
+    max_retries: int = Field(default=5, ge=1, le=10, description="Retry count (Fibonacci backoff)")
 
-    # === DeepSeek配置 ===
-    deepseek_api_key: str = Field(..., description="DeepSeek API密钥")
-    deepseek_base_url: str = Field(default="https://api.deepseek.com", description="DeepSeek API地址")
-    deepseek_model: str = Field(default="deepseek-chat", description="DeepSeek模型")
+    # === DeepSeek Configuration ===
+    deepseek_api_key: str = Field(..., description="DeepSeek API key")
+    deepseek_base_url: str = Field(default="https://api.deepseek.com", description="DeepSeek API URL")
+    deepseek_model: str = Field(default="deepseek-chat", description="DeepSeek model")
 
-    # === 邮件配置 ===
-    smtp_host: str = Field(..., description="SMTP服务器地址")
-    smtp_port: int = Field(default=587, description="SMTP端口")
-    smtp_user: str = Field(..., description="SMTP用户名")
-    smtp_password: str = Field(..., description="SMTP密码")
-    email_from: str = Field(..., description="发件人邮箱")
-    email_to: list[str] = Field(..., description="收件人邮箱列表")
+    # === Email Configuration ===
+    smtp_host: str = Field(..., description="SMTP server address")
+    smtp_port: int = Field(default=587, description="SMTP port")
+    smtp_user: str = Field(..., description="SMTP username")
+    smtp_password: str = Field(..., description="SMTP password")
+    email_from: str = Field(..., description="Sender email address")
+    email_to: list[str] = Field(..., description="Recipient email list")
 
-    # === 爬虫配置 ===
-    crawler_timeout: int = Field(default=10, ge=1, le=60, description="爬虫超时时间（秒）")
+    # === Crawler Configuration ===
+    crawler_timeout: int = Field(default=10, ge=1, le=60, description="Crawler timeout (seconds)")
 
 
 def load_settings() -> Settings:
-    """加载配置"""
+    """Load settings"""
     return Settings()  # type: ignore

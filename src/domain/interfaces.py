@@ -7,64 +7,64 @@ from src.domain.models import AnalysisResult, TicketQuery, TicketQueryResult
 
 
 class ITicketCrawler(ABC):
-    """车票爬虫接口"""
+    """Ticket crawler interface"""
 
     @abstractmethod
     def fetch_tickets(self, query: TicketQuery) -> TicketQueryResult:
         """
-        获取车票信息
+        Fetch ticket information
 
         Args:
-            query: 查询条件
+            query: Query conditions
 
         Returns:
-            查询结果
+            Query result
 
         Raises:
-            CrawlerException: 爬取失败时抛出
+            CrawlerException: Raised when crawling fails
         """
         pass
 
 
 class ITicketAnalyzer(ABC):
-    """车票分析器接口"""
+    """Ticket analyzer interface"""
 
     @abstractmethod
     def analyze(self, result: TicketQueryResult) -> AnalysisResult:
         """
-        分析车票数据
+        Analyze ticket data
 
         Args:
-            result: 查询结果
+            result: Query result
 
         Returns:
-            分析结果
+            Analysis result
 
         Raises:
-            AnalyzerException: 分析失败时抛出
+            AnalyzerException: Raised when analysis fails
         """
         pass
 
 
 class INotifier(ABC):
-    """通知器接口"""
+    """Notifier interface"""
 
     @abstractmethod
     def send(self, analysis: AnalysisResult) -> None:
         """
-        发送通知
+        Send notification
 
         Args:
-            analysis: 分析结果
+            analysis: Analysis result
 
         Raises:
-            NotifierException: 发送失败时抛出
+            NotifierException: Raised when sending fails
         """
         pass
 
 
 class IScheduler(Protocol):
-    """调度器接口（使用Protocol实现结构化类型）"""
+    """Scheduler interface (using Protocol for structural typing)"""
 
     def schedule_weekly_job(
         self,
@@ -74,20 +74,20 @@ class IScheduler(Protocol):
         job_func: callable,
     ) -> None:
         """
-        安排每周定时任务
+        Schedule weekly job
 
         Args:
-            day_of_week: 星期几（0=Monday, 6=Sunday）
-            hour: 小时
-            minute: 分钟
-            job_func: 要执行的任务函数
+            day_of_week: Day of week (0=Monday, 6=Sunday)
+            hour: Hour
+            minute: Minute
+            job_func: Job function to execute
         """
         ...
 
     def start(self) -> None:
-        """启动调度器"""
+        """Start scheduler"""
         ...
 
     def shutdown(self) -> None:
-        """关闭调度器"""
+        """Shutdown scheduler"""
         ...

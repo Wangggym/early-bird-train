@@ -1,90 +1,90 @@
-# CI/CD 配置指南
+# CI/CD Configuration Guide
 
-本文档说明如何配置和使用项目的 CI/CD 流程。
-
----
-
-## 📋 目录
-
-- [概览](#概览)
-- [前置要求](#前置要求)
-- [配置步骤](#配置步骤)
-- [工作流说明](#工作流说明)
-- [常见问题](#常见问题)
+This document explains how to configure and use the project's CI/CD pipeline.
 
 ---
 
-## 🎯 概览
+## 📋 Table of Contents
 
-本项目使用 **GitHub Actions** 实现 CI/CD：
-
-### **CI (持续集成)**
-- ✅ 代码格式检查 (ruff format)
-- ✅ 代码质量检查 (ruff lint)
-- ✅ 类型检查 (mypy)
-- ✅ 自动化测试 (pytest)
-- ✅ 测试覆盖率报告
-- ✅ Docker 构建测试
-
-### **CD (持续部署)**
-- 🚀 构建 Docker 镜像
-- 🚀 推送到 Docker Hub
-- 🚀 自动部署到 AWS EC2
-- 🚀 健康检查
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Configuration Steps](#configuration-steps)
+- [Workflow Details](#workflow-details)
+- [FAQ](#faq)
 
 ---
 
-## 📦 前置要求
+## 🎯 Overview
 
-### 1. Docker Hub 账号
+This project uses **GitHub Actions** for CI/CD:
 
-1. 注册 [Docker Hub](https://hub.docker.com/) 账号
-2. 创建访问令牌（Token）：
-   - 访问：https://hub.docker.com/settings/security
-   - 点击 "New Access Token"
-   - 名称：`github-actions`
-   - 权限：`Read, Write, Delete`
-   - 保存生成的 Token（只显示一次）
+### **CI (Continuous Integration)**
+- ✅ Code format checking (ruff format)
+- ✅ Code quality checking (ruff lint)
+- ✅ Type checking (mypy)
+- ✅ Automated testing (pytest)
+- ✅ Test coverage reports
+- ✅ Docker build testing
 
-### 2. AWS EC2 服务器
+### **CD (Continuous Deployment)**
+- 🚀 Build Docker images
+- 🚀 Push to Docker Hub
+- 🚀 Auto-deploy to AWS EC2
+- 🚀 Health checks
 
-确保你的 EC2 服务器已：
-- ✅ 安装 Docker 和 Docker Compose
-- ✅ 从 GitHub 克隆了项目代码
-- ✅ 配置了 `.env` 文件
-- ✅ 可以通过 SSH 访问
+---
 
-### 3. SSH 密钥
+## 📦 Prerequisites
 
-获取 EC2 的 SSH 私钥：
+### 1. Docker Hub Account
+
+1. Register a [Docker Hub](https://hub.docker.com/) account
+2. Create an access token:
+   - Visit: https://hub.docker.com/settings/security
+   - Click "New Access Token"
+   - Name: `github-actions`
+   - Permissions: `Read, Write, Delete`
+   - Save the generated token (displayed only once)
+
+### 2. AWS EC2 Server
+
+Ensure your EC2 server has:
+- ✅ Docker and Docker Compose installed
+- ✅ Project code cloned from GitHub
+- ✅ `.env` file configured
+- ✅ SSH access available
+
+### 3. SSH Keys
+
+Get EC2's SSH private key:
 ```bash
-# 如果使用 AWS 下载的 .pem 文件
+# If using AWS downloaded .pem file
 cat ~/.ssh/your-key.pem
 
-# 如果使用自己生成的密钥
+# If using self-generated key
 cat ~/.ssh/id_rsa
 ```
 
 ---
 
-## 🔧 配置步骤
+## 🔧 Configuration Steps
 
-### Step 1: 配置 GitHub Secrets
+### Step 1: Configure GitHub Secrets
 
-在你的 GitHub 仓库中配置以下 Secrets：
+Configure the following secrets in your GitHub repository:
 
-**路径**: `Settings` → `Secrets and variables` → `Actions` → `New repository secret`
+**Path**: `Settings` → `Secrets and variables` → `Actions` → `New repository secret`
 
-| Secret 名称 | 说明 | 示例 |
-|------------|------|------|
-| `DOCKERHUB_USERNAME` | Docker Hub 用户名 | `your-username` |
-| `DOCKERHUB_TOKEN` | Docker Hub 访问令牌 | `dckr_pat_xxxxx...` |
-| `AWS_HOST` | EC2 服务器 IP | `52.123.45.67` |
-| `AWS_USER` | EC2 登录用户名 | `ec2-user` |
-| `AWS_SSH_KEY` | SSH 私钥（完整内容） | `-----BEGIN RSA...` |
-| `AWS_PORT` | SSH 端口（可选，默认22） | `22` |
+| Secret Name | Description | Example |
+|------------|-------------|---------|
+| `DOCKERHUB_USERNAME` | Docker Hub username | `your-username` |
+| `DOCKERHUB_TOKEN` | Docker Hub access token | `dckr_pat_xxxxx...` |
+| `AWS_HOST` | EC2 server IP | `52.123.45.67` |
+| `AWS_USER` | EC2 login username | `ec2-user` |
+| `AWS_SSH_KEY` | SSH private key (full content) | `-----BEGIN RSA...` |
+| `AWS_PORT` | SSH port (optional, default 22) | `22` |
 
-**配置示例**：
+**Configuration Example**:
 
 ```bash
 # DOCKERHUB_USERNAME
@@ -102,32 +102,32 @@ ec2-user
 # AWS_SSH_KEY
 -----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEA...
-...完整的私钥内容...
+...complete private key content...
 -----END RSA PRIVATE KEY-----
 
-# AWS_PORT (可选)
+# AWS_PORT (optional)
 22
 ```
 
-### Step 2: 更新 docker-compose.yml
+### Step 2: Update docker-compose.yml
 
-**方案 A：本地修改并推送（推荐）**
+**Option A: Modify Locally and Push (Recommended)**
 
-在本地修改 `docker/docker-compose.yml`：
+Modify `docker/docker-compose.yml` locally:
 
 ```bash
-# 在本地电脑
+# On local machine
 cd /Users/wangyimin/project/early-bird-train
 vim docker/docker-compose.yml
 ```
 
-将第7行改为你的 Docker Hub 用户名：
+Change line 7 to your Docker Hub username:
 
 ```yaml
 image: your-dockerhub-username/early-bird-train:latest
 ```
 
-然后推送到 GitHub：
+Then push to GitHub:
 
 ```bash
 git add docker/docker-compose.yml
@@ -135,402 +135,401 @@ git commit -m "Update docker-compose with Docker Hub username"
 git push origin master
 ```
 
-在服务器上拉取最新配置：
+Pull latest config on server:
 
 ```bash
-# SSH 到服务器
+# SSH to server
 ssh ec2-user@your-server-ip
 cd ~/early-bird-train
 git pull origin master
 ```
 
-**方案 B：使用环境变量（最佳实践）**
+**Option B: Use Environment Variables (Best Practice)**
 
-不修改文件，直接在服务器上设置环境变量：
+Without modifying files, set environment variables directly on server:
 
 ```bash
-# SSH 到服务器
+# SSH to server
 ssh ec2-user@your-server-ip
 
-# 设置环境变量（临时）
+# Set environment variable (temporary)
 export DOCKERHUB_USERNAME=your-dockerhub-username
 
-# 或者写入 ~/.bashrc（永久）
+# Or write to ~/.bashrc (permanent)
 echo 'export DOCKERHUB_USERNAME=your-dockerhub-username' >> ~/.bashrc
 source ~/.bashrc
 
-# 验证
+# Verify
 echo $DOCKERHUB_USERNAME
 ```
 
-这样 docker-compose.yml 会自动使用环境变量：
+The docker-compose.yml will automatically use the environment variable:
 ```yaml
 image: ${DOCKERHUB_USERNAME:-your-dockerhub-username}/early-bird-train:latest
 ```
 
-### Step 3: 测试 CI/CD
+### Step 3: Test CI/CD
 
-1. **测试 CI**（代码检查）：
+1. **Test CI** (code checks):
    ```bash
-   # 推送到任何分支都会触发 CI
+   # Push to any branch triggers CI
    git add .
    git commit -m "Test CI"
    git push origin master
    ```
 
-2. **测试 CD**（构建和部署）：
+2. **Test CD** (build and deploy):
    ```bash
-   # 推送到 master 分支会触发 CD
+   # Push to master branch triggers CD
    git push origin master
    
-   # 或者打标签触发
+   # Or push tag to trigger
    git tag v1.0.0
    git push origin v1.0.0
    ```
 
-3. **查看执行结果**：
-   - 访问：`https://github.com/你的用户名/early-bird-train/actions`
-   - 查看工作流执行状态
+3. **View Execution Results**:
+   - Visit: `https://github.com/your-username/early-bird-train/actions`
+   - Check workflow execution status
 
 ---
 
-## 🔄 工作流说明
+## 🔄 Workflow Details
 
-### CI 工作流 (`.github/workflows/ci.yml`)
+### CI Workflow (`.github/workflows/ci.yml`)
 
-**触发条件**：
-- Push 到任何分支
-- Pull Request 到 master
+**Triggers**:
+- Push to any branch
+- Pull Request to master
 
-**包含 3 个 Job**：
+**Contains 3 Jobs**:
 
 #### 1. Code Quality Checks
 ```yaml
-代码质量检查：
-- ruff format --check  # 格式检查
-- ruff check          # 代码质量检查
-- mypy               # 类型检查
+Code quality checks:
+- ruff format --check  # Format check
+- ruff check          # Code quality check
+- mypy               # Type check
 ```
 
 #### 2. Run Tests
 ```yaml
-运行测试：
-- pytest tests/ -v                    # 运行所有测试
-- --cov=src --cov-report=xml         # 生成覆盖率报告
-- Upload to Codecov (可选)           # 上传覆盖率
+Run tests:
+- pytest tests/ -v                    # Run all tests
+- --cov=src --cov-report=xml         # Generate coverage report
+- Upload to Codecov (optional)           # Upload coverage
 ```
 
 #### 3. Test Docker Build
 ```yaml
-测试 Docker 构建：
-- 构建镜像但不推送
-- 使用 GitHub Actions 缓存加速
+Test Docker build:
+- Build image but don't push
+- Use GitHub Actions cache for speed
 ```
 
 ---
 
-### CD 工作流 (`.github/workflows/cd.yml`)
+### CD Workflow (`.github/workflows/cd.yml`)
 
-**触发条件**：
-- Push 到 `master` 分支
-- 推送 Git Tag (`v*.*.*`)
-- 手动触发 (workflow_dispatch)
+**Triggers**:
+- Push to `master` branch
+- Push Git Tag (`v*.*.*`)
+- Manual trigger (workflow_dispatch)
 
-**包含 3 个 Job**：
+**Contains 3 Jobs**:
 
 #### 1. Build & Push Docker Image
 ```yaml
-构建并推送镜像：
-- 登录 Docker Hub
-- 构建镜像
-- 自动打标签：
+Build and push image:
+- Login to Docker Hub
+- Build image
+- Auto tag:
   - master → latest
   - v1.0.0 → 1.0.0, 1.0, 1, latest
   - commit → master-abc1234
-- 推送到 Docker Hub
+- Push to Docker Hub
 ```
 
 #### 2. Deploy to AWS EC2
 ```yaml
-部署到 AWS：
-- SSH 连接到 EC2
-- 拉取最新镜像
-- 重启容器
-- 清理旧镜像
+Deploy to AWS:
+- SSH connect to EC2
+- Pull latest image
+- Restart containers
+- Clean old images
 ```
 
 #### 3. Health Check
 ```yaml
-健康检查：
-- 等待服务启动
-- 检查容器状态
-- 输出最新日志
+Health check:
+- Wait for service to start
+- Check container status
+- Output latest logs
 ```
 
 ---
 
-## 🏷️ 版本管理（Git Tag）
+## 🏷️ Version Management (Git Tag)
 
-### 创建和推送标签
+### Create and Push Tags
 
 ```bash
-# 1. 创建标签
+# 1. Create tag
 git tag v1.0.0
 
-# 2. 推送标签
+# 2. Push tag
 git push origin v1.0.0
 
-# 3. 查看所有标签
+# 3. View all tags
 git tag -l
 ```
 
-### 标签命名规范
+### Tag Naming Convention
 
-使用 **语义化版本号** (Semantic Versioning)：
+Use **Semantic Versioning**:
 
 ```
-v<主版本>.<次版本>.<修订号>
+v<major>.<minor>.<patch>
 
-v1.0.0  - 初始版本
-v1.1.0  - 新增功能
-v1.1.1  - Bug 修复
-v2.0.0  - 重大更新（不兼容的变更）
+v1.0.0  - Initial version
+v1.1.0  - New features
+v1.1.1  - Bug fixes
+v2.0.0  - Major update (breaking changes)
 ```
 
-### Docker 镜像标签映射
+### Docker Image Tag Mapping
 
-| Git Tag | Docker 镜像标签 |
-|---------|---------------|
+| Git Tag | Docker Image Tags |
+|---------|------------------|
 | `v1.2.3` | `1.2.3`, `1.2`, `1`, `latest` |
 | `master` | `latest`, `master-abc1234` |
 | `develop` | `develop`, `develop-abc1234` |
 
 ---
 
-## 🔍 监控和调试
+## 🔍 Monitoring and Debugging
 
-### 查看工作流状态
+### View Workflow Status
 
-1. **GitHub Actions 页面**：
+1. **GitHub Actions Page**:
    ```
-   https://github.com/你的用户名/early-bird-train/actions
+   https://github.com/your-username/early-bird-train/actions
    ```
 
-2. **查看某次执行的详细日志**：
-   - 点击工作流运行记录
-   - 展开各个 Step 查看日志
+2. **View Detailed Logs for a Run**:
+   - Click on workflow run record
+   - Expand each Step to view logs
 
-### 查看 Docker Hub 镜像
+### View Docker Hub Images
 
 ```
-https://hub.docker.com/r/你的用户名/early-bird-train/tags
+https://hub.docker.com/r/your-username/early-bird-train/tags
 ```
 
-### 服务器上查看部署状态
+### Check Deployment Status on Server
 
 ```bash
-# SSH 到服务器
+# SSH to server
 ssh ec2-user@your-server-ip
 
-# 查看容器状态
+# Check container status
 docker ps | grep early-bird-train
 
-# 查看日志
+# View logs
 docker logs -f early-bird-train
 
-# 查看最近50行日志
+# View last 50 lines of logs
 docker logs --tail 50 early-bird-train
 ```
 
 ---
 
-## 🐛 常见问题
+## 🐛 FAQ
 
-### 1. CI 失败：代码格式问题
+### 1. CI Failure: Code Format Issues
 
-**错误**：
+**Error**:
 ```
 Error: ruff format --check failed
 ```
 
-**解决**：
+**Solution**:
 ```bash
-# 本地修复格式
+# Fix format locally
 make fix
 
-# 提交修复
+# Commit fix
 git add .
 git commit -m "Fix code formatting"
 git push
 ```
 
-### 2. CD 失败：Docker Hub 认证失败
+### 2. CD Failure: Docker Hub Authentication Failed
 
-**错误**：
+**Error**:
 ```
 Error: unauthorized: incorrect username or password
 ```
 
-**解决**：
-1. 检查 `DOCKERHUB_USERNAME` 是否正确
-2. 重新生成 `DOCKERHUB_TOKEN`
-3. 确保在 GitHub Secrets 中正确配置
+**Solution**:
+1. Check if `DOCKERHUB_USERNAME` is correct
+2. Regenerate `DOCKERHUB_TOKEN`
+3. Ensure correct configuration in GitHub Secrets
 
-### 3. 部署失败：SSH 连接失败
+### 3. Deployment Failure: SSH Connection Failed
 
-**错误**：
+**Error**:
 ```
 Error: ssh: connect to host xxx.xxx.xxx.xxx port 22: Connection refused
 ```
 
-**解决**：
-1. 检查 `AWS_HOST` IP 地址是否正确
-2. 检查 EC2 安全组是否允许 GitHub Actions IP（或全部）访问 22 端口
-3. 检查 `AWS_SSH_KEY` 私钥格式是否完整
+**Solution**:
+1. Check if `AWS_HOST` IP address is correct
+2. Check if EC2 security group allows GitHub Actions IP (or all) to access port 22
+3. Check if `AWS_SSH_KEY` private key format is complete
 
-### 4. 部署失败：容器启动失败
+### 4. Deployment Failure: Container Startup Failed
 
-**错误**：
+**Error**:
 ```
 Error: Container is not running
 ```
 
-**解决**：
+**Solution**:
 ```bash
-# SSH 到服务器检查
+# SSH to server and check
 ssh ec2-user@your-server-ip
 
-# 查看容器日志
+# View container logs
 docker logs early-bird-train
 
-# 常见原因：
-# - .env 文件缺失或配置错误
-# - 端口被占用
-# - 依赖服务不可用
+# Common causes:
+# - .env file missing or misconfigured
+# - Port already in use
+# - Dependency services unavailable
 ```
 
-### 5. 镜像拉取失败
+### 5. Image Pull Failed
 
-**错误**：
+**Error**:
 ```
 Error: manifest for xxx/early-bird-train:latest not found
 ```
 
-**解决**：
-1. 确保 CD 工作流成功执行并推送了镜像
-2. 检查 Docker Hub 上是否有该镜像
-3. 确认 `docker-compose.yml` 中的镜像名称正确
+**Solution**:
+1. Ensure CD workflow executed successfully and pushed the image
+2. Check if the image exists on Docker Hub
+3. Confirm image name in `docker-compose.yml` is correct
 
 ---
 
-## 🚀 手动触发部署
+## 🚀 Manual Deployment Trigger
 
-有时你可能需要手动触发部署（不推送代码）：
+Sometimes you may need to trigger deployment manually (without pushing code):
 
-### 方法 1：通过 GitHub 界面
+### Method 1: Via GitHub UI
 
-1. 访问：`Actions` → `CD - Build & Deploy`
-2. 点击 `Run workflow`
-3. 选择分支：`master`
-4. 选择环境：`production`
-5. 点击 `Run workflow`
+1. Visit: `Actions` → `CD - Build & Deploy`
+2. Click `Run workflow`
+3. Select branch: `master`
+4. Select environment: `production`
+5. Click `Run workflow`
 
-### 方法 2：通过 GitHub CLI
+### Method 2: Via GitHub CLI
 
 ```bash
-# 安装 gh CLI
+# Install gh CLI
 brew install gh  # macOS
-# 或访问 https://cli.github.com/
+# Or visit https://cli.github.com/
 
-# 登录
+# Login
 gh auth login
 
-# 触发工作流
+# Trigger workflow
 gh workflow run cd.yml
 ```
 
 ---
 
-## 📊 添加 Badges 到 README
+## 📊 Add Badges to README
 
-在 `README.md` 顶部添加状态徽章：
+Add status badges at the top of `README.md`:
 
 ```markdown
-# 早起鸟抢票助手
+# Early Bird Train
 
-[![CI](https://github.com/你的用户名/early-bird-train/workflows/CI%20-%20Code%20Quality%20%26%20Tests/badge.svg)](https://github.com/你的用户名/early-bird-train/actions)
-[![CD](https://github.com/你的用户名/early-bird-train/workflows/CD%20-%20Build%20%26%20Deploy/badge.svg)](https://github.com/你的用户名/early-bird-train/actions)
-[![Docker](https://img.shields.io/docker/v/你的用户名/early-bird-train?label=docker)](https://hub.docker.com/r/你的用户名/early-bird-train)
+[![CI](https://github.com/your-username/early-bird-train/workflows/CI%20-%20Code%20Quality%20%26%20Tests/badge.svg)](https://github.com/your-username/early-bird-train/actions)
+[![CD](https://github.com/your-username/early-bird-train/workflows/CD%20-%20Build%20%26%20Deploy/badge.svg)](https://github.com/your-username/early-bird-train/actions)
+[![Docker](https://img.shields.io/docker/v/your-username/early-bird-train?label=docker)](https://hub.docker.com/r/your-username/early-bird-train)
 ```
 
 ---
 
-## 🎓 最佳实践
+## 🎓 Best Practices
 
-### 1. 分支策略
+### 1. Branch Strategy
 
 ```
-master (生产环境)
+master (production)
   ↑
-develop (开发环境)
+develop (development)
   ↑
-feature/* (功能分支)
+feature/* (feature branches)
 ```
 
-### 2. 提交前本地检查
+### 2. Pre-commit Local Checks
 
 ```bash
-# 运行所有检查
+# Run all checks
 make check
 
-# 运行测试
+# Run tests
 make test
 
-# 修复格式问题
+# Fix format issues
 make fix
 ```
 
-### 3. 版本发布流程
+### 3. Version Release Process
 
 ```bash
-# 1. 确保在 master 分支
+# 1. Ensure on master branch
 git checkout master
 git pull
 
-# 2. 创建标签
+# 2. Create tag
 git tag v1.0.0
 
-# 3. 推送标签（触发 CD）
+# 3. Push tag (triggers CD)
 git push origin v1.0.0
 
-# 4. 在 GitHub 创建 Release（可选）
+# 4. Create Release on GitHub (optional)
 gh release create v1.0.0 --generate-notes
 ```
 
-### 4. 回滚部署
+### 4. Rollback Deployment
 
-如果新版本有问题，快速回滚：
+If the new version has issues, quickly rollback:
 
 ```bash
-# 方法1：在服务器上手动回滚
+# Method 1: Manual rollback on server
 ssh ec2-user@your-server-ip
 docker-compose -f docker/docker-compose.yml pull your-username/early-bird-train:v1.0.0
 docker-compose -f docker/docker-compose.yml up -d
 
-# 方法2：推送旧版本标签
-git tag v1.0.1 v1.0.0^{}  # 基于旧版本创建新标签
+# Method 2: Push old version tag
+git tag v1.0.1 v1.0.0^{}  # Create new tag based on old version
 git push origin v1.0.1
 ```
 
 ---
 
-## 📞 获取帮助
+## 📞 Get Help
 
-- **GitHub Actions 文档**: https://docs.github.com/actions
-- **Docker Hub 文档**: https://docs.docker.com/docker-hub/
-- **问题反馈**: 在 GitHub Issues 中提问
+- **GitHub Actions Documentation**: https://docs.github.com/actions
+- **Docker Hub Documentation**: https://docs.docker.com/docker-hub/
+- **Issue Feedback**: Ask questions in GitHub Issues
 
 ---
 
-最后更新：2025-11-02
-
+Last updated: 2025-11-02

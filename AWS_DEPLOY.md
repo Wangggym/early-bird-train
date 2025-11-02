@@ -1,238 +1,238 @@
-# AWS 部署指南
+# AWS Deployment Guide
 
-本指南帮助你将项目部署到 AWS EC2 服务器。
+This guide helps you deploy the project to AWS EC2 server.
 
-## 📋 前置条件
+## 📋 Prerequisites
 
-- ✅ AWS EC2 实例已创建并运行
-- ✅ 已通过 SSH 连接到服务器
-- ✅ 服务器已安装 Docker 和 Docker Compose
+- ✅ AWS EC2 instance created and running
+- ✅ SSH access to server configured
+- ✅ Docker and Docker Compose installed on server
 
-## 🚀 部署步骤
+## 🚀 Deployment Steps
 
-### 4. 配置环境变量
+### 4. Configure Environment Variables
 
 ```bash
-# 创建 .env 文件
+# Create .env file
 cp .env.example .env
 vim .env
 ```
 
-### 5. 测试运行
+### 5. Test Run
 
-先运行一次测试，确保配置正确：
+Run a test first to ensure configuration is correct:
 
 ```bash
 docker-compose -f docker/docker-compose.yml run --rm early-bird-train python main.py --once
 ```
 
-**预期输出**：
+**Expected Output**:
 ```
-INFO | Starting 早起鸟抢票助手...
+INFO | Starting Early Bird Train...
 INFO | Monitoring: C3380 (大邑 -> 成都南)
 INFO | Running ticket monitoring once...
-INFO | Configured schedule: 周一 at 15:30 (max_retries=5)
+INFO | Configured schedule: Mon at 15:30 (max_retries=5)
 INFO | Fetching URL: https://trains.ctrip.com/...
 INFO | Successfully fetched 1 train(s)
 INFO | Email sent successfully
 INFO | Ticket monitoring completed successfully
 ```
 
-### 6. 启动定时服务
+### 6. Start Scheduled Service
 
-测试通过后，启动定时监控：
+After test passes, start scheduled monitoring:
 
 ```bash
-# 启动服务（后台运行）
+# Start service (background)
 docker-compose -f docker/docker-compose.yml up -d
 
-# 查看服务状态
+# Check service status
 docker-compose -f docker/docker-compose.yml ps
 
-# 查看实时日志
+# View real-time logs
 docker-compose -f docker/docker-compose.yml logs -f
 ```
 
-## 📊 监控和维护
+## 📊 Monitoring and Maintenance
 
-### 查看日志
+### View Logs
 
 ```bash
-# 实时查看日志
+# View logs in real-time
 docker logs -f early-bird-train
 
-# 查看最近 100 行
+# View last 100 lines
 docker logs --tail 100 early-bird-train
 
-# 查看今天的日志
+# View today's logs
 docker logs early-bird-train 2>&1 | grep "$(date +%Y-%m-%d)"
 
-# 查看日志文件
+# View log files
 tail -f logs/app.log
 ```
 
-### 检查容器状态
+### Check Container Status
 
 ```bash
-# 查看容器状态
+# Check container status
 docker ps -a | grep early-bird-train
 
-# 查看资源占用
+# View resource usage
 docker stats early-bird-train
 
-# 查看容器详情
+# View container details
 docker inspect early-bird-train
 ```
 
-### 更新部署
+### Update Deployment
 
 ```bash
-# 1. 停止容器
+# 1. Stop containers
 docker-compose -f docker/docker-compose.yml down
 
-# 2. 更新代码（选择一种方式）
-# 方式1：从本地同步
+# 2. Update code (choose one method)
+# Method 1: Sync from local
 # rsync -avz --exclude '.git' user@local:/path/to/project/* ./
 
-# 方式2：从 Git 拉取
+# Method 2: Pull from Git
 # git pull origin main
 
-# 3. 重新构建镜像
+# 3. Rebuild image
 docker-compose -f docker/docker-compose.yml build --no-cache
 
-# 4. 启动新容器
+# 4. Start new container
 docker-compose -f docker/docker-compose.yml up -d
 
-# 5. 验证
+# 5. Verify
 docker logs -f early-bird-train
 ```
 
-### 备份和清理
+### Backup and Cleanup
 
 ```bash
-# 备份日志
+# Backup logs
 tar -czf logs-backup-$(date +%Y%m%d).tar.gz logs/
 
-# 清理旧日志（保留最近7天）
+# Clean old logs (keep last 7 days)
 find logs/ -name "*.log" -mtime +7 -delete
 
-# 清理 Docker 镜像
+# Clean Docker images
 docker image prune -a -f
 
-# 查看磁盘占用
+# Check disk usage
 df -h
 du -sh logs/
 ```
 
-## 🔧 故障排查
+## 🔧 Troubleshooting
 
-### 1. 容器无法启动
+### 1. Container Cannot Start
 
 ```bash
-# 查看错误日志
+# View error logs
 docker logs early-bird-train
 
-# 检查配置文件
+# Check configuration file
 cat .env | grep -v '^#' | grep -v '^$'
 
-# 删除容器重新创建
+# Delete container and recreate
 docker-compose -f docker/docker-compose.yml down
 docker-compose -f docker/docker-compose.yml up -d
 ```
 
-### 2. 网络问题
+### 2. Network Issues
 
 ```bash
-# 测试网络连接
+# Test network connection
 docker exec early-bird-train ping -c 3 trains.ctrip.com
 docker exec early-bird-train curl -I https://trains.ctrip.com
 
-# 检查 DNS
+# Check DNS
 docker exec early-bird-train cat /etc/resolv.conf
 ```
 
-### 3. 权限问题
+### 3. Permission Issues
 
 ```bash
-# 确保当前用户在 docker 组
+# Ensure current user is in docker group
 sudo usermod -aG docker $USER
-# 需要重新登录才能生效
+# Need to re-login to take effect
 
-# 检查日志目录权限
+# Check log directory permissions
 ls -la logs/
 chmod 755 logs/
 ```
 
-### 4. DeepSeek API 错误
+### 4. DeepSeek API Error
 
-如果看到：
+If you see:
 ```
 WARNING | AI analysis failed, using fallback: Error code: 401
 ```
 
-**解决方法**：
-1. 访问 https://platform.deepseek.com/
-2. 获取新的 API Key
-3. 更新 `.env` 文件
-4. 重启容器：
+**Solution**:
+1. Visit https://platform.deepseek.com/
+2. Get a new API Key
+3. Update `.env` file
+4. Restart container:
    ```bash
    docker-compose -f docker/docker-compose.yml restart
    ```
 
-### 5. 邮件发送失败
+### 5. Email Sending Failed
 
-**Gmail 用户**：
-1. 启用两步验证
-2. 生成"应用专用密码"：https://myaccount.google.com/apppasswords
-3. 使用该密码替换 `.env` 中的 `SMTP_PASSWORD`
+**Gmail Users**:
+1. Enable two-factor authentication
+2. Generate "App-specific password": https://myaccount.google.com/apppasswords
+3. Use this password to replace `SMTP_PASSWORD` in `.env`
 
-**QQ/163 邮箱**：
-1. 在邮箱设置中开启 SMTP 服务
-2. 获取授权码
-3. 更新 `.env` 配置
+**QQ/163 Mail Users**:
+1. Enable SMTP service in email settings
+2. Get authorization code
+3. Update `.env` configuration
 
-## 🔐 安全建议
+## 🔐 Security Recommendations
 
-### 1. 保护 .env 文件
+### 1. Protect .env File
 
 ```bash
-# 设置只有所有者可读
+# Set only owner can read
 chmod 600 .env
 
-# 确保不会被提交到 Git
+# Ensure won't be committed to Git
 echo ".env" >> .gitignore
 ```
 
-### 2. 定期更新
+### 2. Regular Updates
 
 ```bash
-# 更新系统包
+# Update system packages
 sudo yum update -y
 
-# 更新 Docker 镜像
+# Update Docker images
 docker pull python:3.11-slim
 docker-compose -f docker/docker-compose.yml build --no-cache
 ```
 
-### 3. 设置防火墙
+### 3. Setup Firewall
 
 ```bash
-# AWS 安全组规则
-# - 仅允许你的 IP 访问 SSH (22端口)
-# - 允许出站 HTTPS (443) 用于访问 API
-# - 允许出站 SMTP (587/465) 用于发送邮件
+# AWS Security Group Rules
+# - Only allow your IP to access SSH (port 22)
+# - Allow outbound HTTPS (443) for API access
+# - Allow outbound SMTP (587/465) for sending emails
 ```
 
-## ⚙️ 高级配置
+## ⚙️ Advanced Configuration
 
-### 设置开机自启
+### Setup Auto-start on Boot
 
 ```bash
-# 创建 systemd 服务
+# Create systemd service
 sudo vim /etc/systemd/system/early-bird-train.service
 ```
 
-添加以下内容：
+Add the following content:
 
 ```ini
 [Unit]
@@ -252,7 +252,7 @@ User=ec2-user
 WantedBy=multi-user.target
 ```
 
-启用服务：
+Enable service:
 
 ```bash
 sudo systemctl daemon-reload
@@ -261,14 +261,14 @@ sudo systemctl start early-bird-train
 sudo systemctl status early-bird-train
 ```
 
-### 设置日志轮转
+### Setup Log Rotation
 
 ```bash
-# 创建 logrotate 配置
+# Create logrotate configuration
 sudo vim /etc/logrotate.d/early-bird-train
 ```
 
-添加以下内容：
+Add the following content:
 
 ```
 /home/ec2-user/early-bird-train/logs/*.log {
@@ -282,36 +282,35 @@ sudo vim /etc/logrotate.d/early-bird-train
 }
 ```
 
-## 📝 常用命令速查
+## 📝 Common Commands Quick Reference
 
 ```bash
-# 启动服务
+# Start service
 docker-compose -f docker/docker-compose.yml up -d
 
-# 停止服务
+# Stop service
 docker-compose -f docker/docker-compose.yml down
 
-# 重启服务
+# Restart service
 docker-compose -f docker/docker-compose.yml restart
 
-# 查看日志
+# View logs
 docker logs -f early-bird-train
 
-# 查看状态
+# Check status
 docker-compose -f docker/docker-compose.yml ps
 
-# 更新代码并重启
+# Update code and restart
 git pull && docker-compose -f docker/docker-compose.yml up -d --build
 
-# 清理所有
+# Clean everything
 docker-compose -f docker/docker-compose.yml down -v
 docker system prune -a -f
 ```
 
-## 🆘 获取帮助
+## 🆘 Get Help
 
-如遇到问题，请：
-1. 查看日志：`docker logs early-bird-train`
-2. 检查配置：`cat .env`
-3. 测试运行：`docker-compose -f docker/docker-compose.yml run --rm early-bird-train python main.py --once`
-
+If you encounter problems:
+1. View logs: `docker logs early-bird-train`
+2. Check configuration: `cat .env`
+3. Test run: `docker-compose -f docker/docker-compose.yml run --rm early-bird-train python main.py --once`
