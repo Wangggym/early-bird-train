@@ -55,9 +55,6 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Docker
-.dockerignore
-
 # 临时文件和测试脚本
 crawler.py
 response.html

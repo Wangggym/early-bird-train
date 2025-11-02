@@ -1,0 +1,72 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Virtual environments
+env/
+venv/
+.venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs (will be mounted as volume)
+logs/
+*.log
+
+# Data (will be mounted as volume)
+data/
+
+# Environment files (use env_file in docker-compose)
+.env
+.env.local
+.env.example
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Documentation
+*.md
+!README.md
+
+# Docker files
+docker/
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Development files
+Makefile
+debug_*.json
+debug_*.html
+debug_*.txt
+trains_data.json
+response.html
+script_*.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Tests (not needed in production)
+tests/
+pytest.ini
+
