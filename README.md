@@ -2,9 +2,16 @@
 
 携程火车票余票监控和AI分析系统，采用企业级架构设计。
 
+[![Tests](https://img.shields.io/badge/tests-48%20passed-brightgreen)]()
+[![Coverage](https://img.shields.io/badge/coverage-73%25-yellow)]()
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue)]()
+[![License](https://img.shields.io/badge/license-MIT-blue)]()
+
+
 ## ✨ 特性
 
-- 🎯 **精准监控**：每周一15:30自动抓取15天后的车票
+- 🎯 **精准监控**：支持多日期调度，灵活配置监控时间
+- 🔄 **智能重试**：斐波那契退避策略，避免因延迟错过票
 - 🤖 **AI分析**：DeepSeek智能分析余票情况
 - 📧 **邮件通知**：精美HTML格式邮件推送
 - 🏗️ **企业架构**：面向对象、依赖注入、强类型
@@ -145,10 +152,16 @@ DAYS_AHEAD=15               # 提前天数
 ### 调度配置
 
 ```env
-SCHEDULE_DAY_OF_WEEK=0      # 0=周一, 6=周日
-SCHEDULE_HOUR=15            # 小时（0-23）
-SCHEDULE_MINUTE=30          # 分钟（0-59）
+# 支持多个日期（JSON数组格式）
+SCHEDULE_DAYS_OF_WEEK=[0]   # [0]=仅周一, [0,2,4]=周一三五
+SCHEDULE_HOUR=15             # 小时（0-23）
+SCHEDULE_MINUTE=30           # 分钟（0-59）
+MAX_RETRIES=5                # 重试次数（斐波那契退避）
 ```
+
+**日期编号**: 0=周一, 1=周二, 2=周三, 3=周四, 4=周五, 5=周六, 6=周日
+
+📖 **新功能详解**: [FEATURES.md](FEATURES.md)
 
 ### DeepSeek配置
 
@@ -184,12 +197,31 @@ tail -f logs/app_$(date +%Y-%m-%d).log
 ## 🧪 测试
 
 ```bash
-# 运行测试（TODO）
-pytest
+# 运行所有测试
+make test
+
+# 运行测试（带覆盖率）
+make test-cov
+
+# 快速测试（并行）
+make test-fast
+
+# 只运行单元测试
+make test-unit
 
 # 类型检查
-mypy src/
+make check
 ```
+
+📖 **详细测试文档**: [TESTING.md](TESTING.md)
+
+**测试覆盖的功能**:
+- ✅ 斐波那契退避重试机制
+- ✅ 多日期调度支持
+- ✅ 爬虫、分析器、通知器
+- ✅ 错误处理和边界条件
+
+**当前覆盖率目标**: ≥ 80%
 
 ## 🔮 未来计划
 

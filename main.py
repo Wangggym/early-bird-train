@@ -67,17 +67,23 @@ def run_scheduler(container: Container) -> None:
         except Exception as e:
             logger.exception(f"Unexpected error in monitoring job: {e}")
 
-    # 安排每周定时任务
-    scheduler.schedule_weekly_job(
-        day_of_week=config.schedule_day_of_week,
+    # 安排多个每周定时任务
+    scheduler.schedule_multiple_weekly_jobs(
+        days_of_week=config.schedule_days_of_week,
         hour=config.schedule_hour,
         minute=config.schedule_minute,
         job_func=job,
     )
 
+    # 格式化日期名称
+    day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    day_names_cn = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+    scheduled_days = ", ".join([day_names_cn[d] for d in config.schedule_days_of_week])
+
     logger.info(
-        f"Scheduled to run every week on day {config.schedule_day_of_week} "
-        f"at {config.schedule_hour:02d}:{config.schedule_minute:02d}"
+        f"Scheduled to run on {scheduled_days} "
+        f"at {config.schedule_hour:02d}:{config.schedule_minute:02d} "
+        f"(max_retries={config.max_retries})"
     )
 
     # 启动调度器（阻塞运行）
