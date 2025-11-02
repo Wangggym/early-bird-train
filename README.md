@@ -2,9 +2,12 @@
 
 携程火车票余票监控和AI分析系统，采用企业级架构设计。
 
+[![CI](https://github.com/Wangggym/early-bird-train/workflows/CI%20-%20Code%20Quality%20%26%20Tests/badge.svg)](https://github.com/Wangggym/early-bird-train/actions)
+[![CD](https://github.com/Wangggym/early-bird-train/workflows/CD%20-%20Build%20%26%20Deploy/badge.svg)](https://github.com/Wangggym/early-bird-train/actions)
 [![Tests](https://img.shields.io/badge/tests-48%20passed-brightgreen)]()
 [![Coverage](https://img.shields.io/badge/coverage-73%25-yellow)]()
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)]()
+[![Docker](https://img.shields.io/docker/v/_/early-bird-train?label=docker&color=2496ED)]()
 [![License](https://img.shields.io/badge/license-MIT-blue)]()
 
 

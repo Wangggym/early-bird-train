@@ -51,7 +51,7 @@ class TicketMonitorService:
             days_ahead: 提前天数
         """
         from datetime import datetime
-        
+
         today = datetime.now().date()
         logger.info(
             f"Starting ticket monitoring: {train_number}, "
@@ -82,8 +82,13 @@ class TicketMonitorService:
 
             logger.info(f"Analysis complete: has_ticket={analysis.has_ticket}, has_seated={analysis.has_seated_ticket}")
 
-            # 5. 发送通知
-            self._notifier.send(analysis)
+            # 5. 发送通知（仅在有票时）
+            if analysis.has_ticket:
+                logger.info("Found tickets! Sending notification...")
+                self._notifier.send(analysis)
+                logger.info("Notification sent successfully")
+            else:
+                logger.info("No tickets available, skipping notification")
 
             logger.info("Ticket monitoring completed successfully")
 
@@ -161,7 +166,7 @@ class TicketMonitorService:
         # days_ahead表示"第N天"，所以实际是今天 + (N-1)天
         # 例如：今天是第1天，第15天 = 今天 + 14天
         target = today + timedelta(days=days_ahead - 1)
-        
+
         logger.info(f"Calculated target (day {days_ahead}): {target.strftime('%Y-%m-%d (%A)')}")
-        
+
         return target.strftime("%Y-%m-%d")

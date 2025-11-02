@@ -1,0 +1,106 @@
+name: CI - Code Quality & Tests
+
+on:
+  push:
+    branches: [ master, develop, feature/* ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv venv .venv
+          source .venv/bin/activate
+          uv pip install -r requirements.txt
+
+      - name: Check code formatting (ruff format)
+        run: |
+          source .venv/bin/activate
+          uv run ruff format --check src/ main.py
+
+      - name: Lint code (ruff check)
+        run: |
+          source .venv/bin/activate
+          uv run ruff check src/ main.py
+
+      - name: Type check (mypy)
+        continue-on-error: true
+        run: |
+          source .venv/bin/activate
+          uv run mypy src/ main.py || echo "⚠️ Type check warnings (non-blocking)"
+
+  tests:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: |
+          uv venv .venv
+          source .venv/bin/activate
+          uv pip install -r requirements.txt
+
+      - name: Run tests with coverage
+        run: |
+          source .venv/bin/activate
+          uv run pytest tests/ -v --cov=src --cov-report=xml --cov-report=term
+
+      - name: Upload coverage to Codecov (optional)
+        uses: codecov/codecov-action@v3
+        if: github.event_name == 'push'
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+
+  docker-build-test:
+    name: Test Docker Build
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (test only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: false
+          tags: early-bird-train:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+

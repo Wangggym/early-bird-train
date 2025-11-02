@@ -76,7 +76,6 @@ def run_scheduler(container: Container) -> None:
     )
 
     # 格式化日期名称
-    day_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     day_names_cn = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
     scheduled_days = ", ".join([day_names_cn[d] for d in config.schedule_days_of_week])
 
