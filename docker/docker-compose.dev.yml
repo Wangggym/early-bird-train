@@ -2,14 +2,10 @@ version: '3.8'
 
 services:
   early-bird-train:
-    # 使用 Docker Hub 镜像（生产环境）
-    # 如果需要本地构建，请取消注释下面的 build 部分
-    image: ${DOCKERHUB_USERNAME:-your-dockerhub-username}/early-bird-train:latest
-    
-    # 本地构建（开发环境）
-    # build:
-    #   context: ..
-    #   dockerfile: docker/Dockerfile
+    # 本地开发环境 - 本地构建镜像
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     
     container_name: early-bird-train
     restart: unless-stopped

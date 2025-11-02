@@ -82,8 +82,13 @@ class TicketMonitorService:
 
             logger.info(f"Analysis complete: has_ticket={analysis.has_ticket}, has_seated={analysis.has_seated_ticket}")
 
-            # 5. 发送通知
-            self._notifier.send(analysis)
+            # 5. 发送通知（仅在有票时）
+            if analysis.has_ticket:
+                logger.info("Found tickets! Sending notification...")
+                self._notifier.send(analysis)
+                logger.info("Notification sent successfully")
+            else:
+                logger.info("No tickets available, skipping notification")
 
             logger.info("Ticket monitoring completed successfully")
 
