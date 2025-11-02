@@ -13,7 +13,7 @@ from src.domain.models import (
 
 
 def mock_ticket_query() -> TicketQuery:
-    """创建模拟票务查询"""
+    """Create mock ticket query"""
     return TicketQuery(
         departure_station="大邑",
         arrival_station="成都南",
@@ -23,7 +23,7 @@ def mock_ticket_query() -> TicketQuery:
 
 
 def mock_seat_info(available: bool = True) -> list[SeatInfo]:
-    """创建模拟座位信息"""
+    """Create mock seat information"""
     return [
         SeatInfo(
             seat_type=SeatType.SECOND_CLASS,
@@ -41,7 +41,7 @@ def mock_seat_info(available: bool = True) -> list[SeatInfo]:
 
 
 def mock_trains(has_tickets: bool = True) -> list[TrainInfo]:
-    """创建模拟车次列表"""
+    """Create mock train list"""
     if not has_tickets:
         return []
     
@@ -52,7 +52,7 @@ def mock_trains(has_tickets: bool = True) -> list[TrainInfo]:
             arrival_station="成都南",
             departure_time="08:30",
             arrival_time="09:05",
-            duration="35分",
+            duration="35min",
             start_price=15,
             seats=mock_seat_info(available=True),
         ),
@@ -60,7 +60,7 @@ def mock_trains(has_tickets: bool = True) -> list[TrainInfo]:
 
 
 def mock_query_result(has_tickets: bool = True) -> TicketQueryResult:
-    """创建模拟查询结果"""
+    """Create mock query result"""
     return TicketQueryResult(
         query=mock_ticket_query(),
         trains=mock_trains(has_tickets),
@@ -69,13 +69,13 @@ def mock_query_result(has_tickets: bool = True) -> TicketQueryResult:
 
 
 def mock_analysis(has_ticket: bool = True) -> AnalysisResult:
-    """创建模拟分析结果"""
+    """Create mock analysis result"""
     return AnalysisResult(
         raw_data=mock_query_result(has_ticket),
         has_ticket=has_ticket,
         has_seated_ticket=has_ticket,
-        recommendation="建议立即购票" if has_ticket else "暂无余票",
-        summary="分析结果示例",
+        recommendation="Recommend booking immediately" if has_ticket else "No tickets available",
+        summary="Analysis result example",
         analyzed_at=datetime(2024, 11, 2, 15, 30, 0),
     )
 

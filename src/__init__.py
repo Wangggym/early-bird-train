@@ -1,3 +1,3 @@
-"""Early Bird Train - 携程火车票监控系统"""
+"""Early Bird Train - Ctrip Train Ticket Monitoring System"""
 
 __version__ = "0.1.0"

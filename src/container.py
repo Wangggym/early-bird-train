@@ -11,12 +11,12 @@ from src.infrastructure.scheduler import APSchedulerWrapper
 
 
 class Container(containers.DeclarativeContainer):
-    """依赖注入容器"""
+    """Dependency injection container"""
 
-    # === 配置 ===
+    # === Configuration ===
     config = providers.Singleton(Settings)
 
-    # === 基础设施层 ===
+    # === Infrastructure Layer ===
     crawler = providers.Factory(
         CtripTicketCrawler,
         timeout=config.provided.crawler_timeout,
@@ -41,7 +41,7 @@ class Container(containers.DeclarativeContainer):
 
     scheduler = providers.Singleton(APSchedulerWrapper)
 
-    # === 应用层 ===
+    # === Application Layer ===
     ticket_service = providers.Factory(
         TicketMonitorService,
         crawler=crawler,

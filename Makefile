@@ -5,76 +5,72 @@ HIDE ?= @
 
 name := "early-bird-train"
 
-# 初始化环境
+# Initialize environment
 gen:
 	-$(HIDE)rm -rf .venv
 	$(HIDE)uv venv .venv --python=3.12.10
 	$(HIDE)source .venv/bin/activate && uv pip install -r requirements.txt
 	@echo "✅ Environment created. Run 'source .venv/bin/activate' to activate."
 
-# 代码格式化和修复
+# Code formatting and fixes
 fix:
 	$(HIDE)source .venv/bin/activate && uv run ruff format src/ main.py
 	$(HIDE)source .venv/bin/activate && uv run ruff check --fix src/ main.py
 	@echo "✅ Code formatted and fixed."
 
-# 类型检查
+# Type checking
 check:
 	$(HIDE)source .venv/bin/activate && MYPY_FORCE_COLOR=1 uv run mypy src/ main.py --color-output | grep --color=always -v "note:"
 	@echo "✅ Type check completed."
-
-# 测试爬虫（无需配置）
-test-crawler:
-	$(HIDE)source .venv/bin/activate && python test_crawler.py
-
-# 开发模式（运行一次测试，需要完整配置）
+	
+# Development mode (run once, full configuration required)
 dev:
 	$(HIDE)source .venv/bin/activate && python main.py --once
 
-# 生产运行（定时调度）
+# Production run (scheduled)
 run:
 	$(HIDE)source .venv/bin/activate && python main.py
 
-# 测试
+# Tests
 test:
 	$(HIDE)source .venv/bin/activate && uv run pytest -v
 	@echo "✅ Tests passed."
 
-# 测试（带覆盖率）
+# Tests with coverage
 test-cov:
 	$(HIDE)source .venv/bin/activate && uv run pytest --cov=src --cov-report=html --cov-report=term-missing
 	@echo "✅ Coverage report generated in htmlcov/"
 
-# 快速测试（并行）
+# Fast tests (parallel)
 test-fast:
 	$(HIDE)source .venv/bin/activate && uv run pytest -n auto
 	@echo "✅ Fast tests completed."
 
-# 测试特定文件
+# Test specific files
 test-unit:
 	$(HIDE)source .venv/bin/activate && uv run pytest tests/unit/ -v
 	@echo "✅ Unit tests passed."
 
-# Docker构建
+# Docker build
 docker-build:
 	$(HIDE)docker build -f docker/Dockerfile -t $(name) .
 	@echo "✅ Docker image built: $(name)"
 
-# Docker启动
+# Docker start
 docker-up: docker-down
 	$(HIDE)docker run -d --name $(name) --env-file .env -v $(PWD)/logs:/app/logs -v $(PWD)/data:/app/data $(name)
 	@echo "✅ Container started: $(name)"
 
-# Docker停止
+# Docker stop
 docker-down:
 	-$(HIDE)docker rm -f $(name) 2>/dev/null || true
 	@echo "✅ Container stopped: $(name)"
 
-# Docker日志
+# Docker logs
 docker-logs:
 	$(HIDE)docker logs $(name) -f -n 100
 
-# 清理
+# Cleanup
 clean:
 	-$(HIDE)rm -rf .venv
 	-$(HIDE)rm -rf logs/*.log
@@ -83,29 +79,29 @@ clean:
 	-$(HIDE)find . -type f -name "*.pyc" -delete
 	@echo "✅ Cleaned up."
 
-# 帮助
+# Help
 help:
 	@echo "Available commands:"
 	@echo ""
 	@echo "Development:"
-	@echo "  make gen          - 初始化虚拟环境"
-	@echo "  make fix          - 格式化和修复代码"
-	@echo "  make check        - 类型检查"
-	@echo "  make dev          - 开发模式（运行一次测试）"
-	@echo "  make run          - 生产运行（定时调度）"
+	@echo "  make gen          - Initialize virtual environment"
+	@echo "  make fix          - Format and fix code"
+	@echo "  make check        - Type checking"
+	@echo "  make dev          - Development mode (run once)"
+	@echo "  make run          - Production run (scheduled)"
 	@echo ""
 	@echo "Testing:"
-	@echo "  make test         - 运行测试"
-	@echo "  make test-cov     - 运行测试（带覆盖率）"
-	@echo "  make test-fast    - 快速测试（并行）"
-	@echo "  make test-unit    - 只运行单元测试"
+	@echo "  make test         - Run tests"
+	@echo "  make test-cov     - Run tests with coverage"
+	@echo "  make test-fast    - Fast tests (parallel)"
+	@echo "  make test-unit    - Run unit tests only"
 	@echo ""
 	@echo "Docker:"
-	@echo "  make docker-build - 构建Docker镜像"
-	@echo "  make docker-up    - 启动Docker容器"
-	@echo "  make docker-down  - 停止Docker容器"
-	@echo "  make docker-logs  - 查看Docker日志"
+	@echo "  make docker-build - Build Docker image"
+	@echo "  make docker-up    - Start Docker container"
+	@echo "  make docker-down  - Stop Docker container"
+	@echo "  make docker-logs  - View Docker logs"
 	@echo ""
 	@echo "Utilities:"
-	@echo "  make clean        - 清理临时文件"
+	@echo "  make clean        - Clean temporary files"
 

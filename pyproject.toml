@@ -1,7 +1,7 @@
 [project]
 name = "early-bird-train"
 version = "0.1.0"
-description = "携程火车票余票监控和通知工具"
+description = "Ctrip train ticket monitoring and notification tool"
 requires-python = ">=3.11"
 dependencies = [
     "pydantic>=2.9.0",
@@ -31,7 +31,7 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]
-ignore = ["E501", "N818"]  # E501: 行过长(HTML模板), N818: 异常命名规范
+ignore = ["E501", "N818"]  # E501: Line too long (HTML templates), N818: Exception naming convention
 
 [tool.mypy]
 python_version = "3.11"

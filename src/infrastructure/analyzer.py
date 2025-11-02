@@ -9,7 +9,7 @@ from src.domain.models import AnalysisResult, SeatType, TicketQueryResult
 
 
 class DeepSeekAnalyzer(ITicketAnalyzer):
-    """DeepSeek AI分析器实现"""
+    """DeepSeek AI analyzer implementation"""
 
     def __init__(
         self,
@@ -18,35 +18,35 @@ class DeepSeekAnalyzer(ITicketAnalyzer):
         model: str = "deepseek-chat",
     ) -> None:
         """
-        初始化分析器
+        Initialize analyzer
 
         Args:
-            api_key: DeepSeek API密钥
-            base_url: API基础URL
-            model: 模型名称
+            api_key: DeepSeek API key
+            base_url: API base URL
+            model: Model name
         """
         self._client = OpenAI(api_key=api_key, base_url=base_url)
         self._model = model
 
     def analyze(self, result: TicketQueryResult) -> AnalysisResult:
-        """分析车票数据"""
+        """Analyze ticket data"""
         logger.info(f"Analyzing ticket data for {result.query.train_number}")
 
         try:
-            # 快速判断（不需要AI）
+            # Quick check (no AI needed)
             has_ticket, has_seated = self._quick_check(result)
 
-            # 如果没有找到车次，直接返回
+            # If no trains found, return directly
             if not result.found_trains:
                 return AnalysisResult(
                     has_ticket=False,
                     has_seated_ticket=False,
-                    summary="❌ 未找到指定车次",
-                    recommendation="请检查车次号是否正确，或稍后再试。",
+                    summary="❌ Train not found",
+                    recommendation="Please check if the train number is correct, or try again later.",
                     raw_data=result,
                 )
 
-            # 使用AI生成详细分析
+            # Generate detailed analysis using AI
             summary, recommendation = self._generate_ai_analysis(result)
 
             return AnalysisResult(
@@ -62,11 +62,11 @@ class DeepSeekAnalyzer(ITicketAnalyzer):
             raise AnalyzerException(f"Failed to analyze tickets: {e}") from e
 
     def _quick_check(self, result: TicketQueryResult) -> tuple[bool, bool]:
-        """快速检查是否有票和坐票"""
+        """Quick check if tickets and seated tickets are available"""
         if not result.found_trains:
             return False, False
 
-        train = result.trains[0]  # 只关注第一个（指定车次）
+        train = result.trains[0]  # Only focus on the first one (specified train)
 
         has_ticket = train.has_second_class_seat
         has_seated = train.has_seated_ticket
@@ -74,10 +74,10 @@ class DeepSeekAnalyzer(ITicketAnalyzer):
         return has_ticket, has_seated
 
     def _generate_ai_analysis(self, result: TicketQueryResult) -> tuple[str, str]:
-        """使用AI生成分析和建议"""
+        """Generate analysis and recommendations using AI"""
         train = result.trains[0]
 
-        # 构建提示词
+        # Build prompt
         prompt = self._build_prompt(train)
 
         try:
@@ -86,8 +86,8 @@ class DeepSeekAnalyzer(ITicketAnalyzer):
                 messages=[
                     {
                         "role": "system",
-                        "content": "你是一个火车票购票助手，帮助用户分析余票情况并给出购票建议。"
-                        "请用简洁、清晰的语言回答，使用emoji让信息更直观。",
+                        "content": "You are a train ticket booking assistant, helping users analyze ticket availability and provide booking suggestions. "
+                        "Please answer in concise and clear language, using emojis to make information more intuitive.",
                     },
                     {"role": "user", "content": prompt},
                 ],
@@ -97,10 +97,10 @@ class DeepSeekAnalyzer(ITicketAnalyzer):
 
             content = response.choices[0].message.content or ""
 
-            # 简单分割summary和recommendation
+            # Simple split of summary and recommendation
             parts = content.split("\n\n", 1)
             summary = parts[0].strip()
-            recommendation = parts[1].strip() if len(parts) > 1 else "建议尽快购票。"
+            recommendation = parts[1].strip() if len(parts) > 1 else "Recommend booking as soon as possible."
 
             return summary, recommendation
 
@@ -109,44 +109,42 @@ class DeepSeekAnalyzer(ITicketAnalyzer):
             return self._fallback_analysis(train)
 
     def _build_prompt(self, train) -> str:
-        """构建AI提示词"""
+        """Build AI prompt"""
         seat_info = "\n".join(
             [
                 f"- {seat.seat_type.value}: ¥{seat.price}, "
-                f"余票{seat.inventory_display}, "
-                f"{'可预订' if seat.bookable else '不可预订'}"
+                f"Available: {seat.inventory_display}, "
+                f"{'Bookable' if seat.bookable else 'Not bookable'}"
                 for seat in train.seats
             ]
         )
 
         return f"""
-请分析以下车次的余票情况：
+Please analyze the ticket availability for the following train:
 
-车次：{train.train_number}
-线路：{train.departure_station} ({train.departure_time}) → {train.arrival_station} ({train.arrival_time})
-运行时长：{train.duration}
+Train Number: {train.train_number}
+Route: {train.departure_station} ({train.departure_time}) → {train.arrival_station} ({train.arrival_time})
+Duration: {train.duration}
 
-座位情况：
+Seat Information:
 {seat_info}
 
-请分两段回答：
-1. 第一段：总结余票情况（是否有票，哪种座位可订）
-2. 第二段：给出购票建议
+Please answer in two parts:
+1. First part: Summarize ticket availability (whether tickets are available, which seats can be booked)
+2. Second part: Provide booking recommendations
 
-用简短的文字回答，使用emoji。
+Answer briefly using emojis.
 """.strip()
 
     def _fallback_analysis(self, train) -> tuple[str, str]:
-        """降级分析（当AI调用失败时）"""
+        """Fallback analysis (when AI call fails)"""
         second_class = train.get_seat_by_type(SeatType.SECOND_CLASS)
 
         if second_class and second_class.is_available:
-            summary = (
-                f"✅ {train.train_number} 有票！\n二等座：¥{second_class.price}，余票{second_class.inventory_display}"
-            )
-            recommendation = "建议尽快购买二等座车票。"
+            summary = f"✅ {train.train_number} has tickets!\nSecond Class: ¥{second_class.price}, Available: {second_class.inventory_display}"
+            recommendation = "Recommend booking second class tickets as soon as possible."
         else:
-            summary = f"❌ {train.train_number} 当前无二等座车票"
-            recommendation = "建议等待放票或考虑其他车次。"
+            summary = f"❌ {train.train_number} currently has no second class tickets"
+            recommendation = "Recommend waiting for ticket release or considering other trains."
 
         return summary, recommendation

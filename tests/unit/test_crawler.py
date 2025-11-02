@@ -11,10 +11,10 @@ from tests.fixtures.mock_data import mock_ticket_query
 
 
 class TestCtripTicketCrawler:
-    """测试携程爬虫"""
+    """Test Ctrip ticket crawler"""
 
     def test_crawler_initialization(self):
-        """测试爬虫初始化"""
+        """Test crawler initialization"""
         crawler = CtripTicketCrawler(timeout=15)
 
         assert crawler._timeout == 15
@@ -22,15 +22,15 @@ class TestCtripTicketCrawler:
         assert "User-Agent" in crawler._session.headers
 
     def test_crawler_default_timeout(self):
-        """测试默认超时"""
+        """Test default timeout"""
         crawler = CtripTicketCrawler()
 
         assert crawler._timeout == 10
 
     @patch("requests.Session.get")
     def test_fetch_tickets_success(self, mock_get):
-        """测试成功获取车票（使用Mock）"""
-        # Mock HTML 响应
+        """Test successful ticket fetching (using Mock)"""
+        # Mock HTML response
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = """
@@ -54,7 +54,7 @@ class TestCtripTicketCrawler:
 
     @patch("requests.Session.get")
     def test_fetch_tickets_network_error(self, mock_get):
-        """测试网络错误"""
+        """Test network error"""
         mock_get.side_effect = requests.RequestException("Network error")
 
         crawler = CtripTicketCrawler()
@@ -67,7 +67,7 @@ class TestCtripTicketCrawler:
 
     @patch("requests.Session.get")
     def test_fetch_tickets_timeout(self, mock_get):
-        """测试超时"""
+        """Test timeout"""
         mock_get.side_effect = requests.Timeout("Timeout")
 
         crawler = CtripTicketCrawler()
@@ -78,7 +78,7 @@ class TestCtripTicketCrawler:
 
     @patch("requests.Session.get")
     def test_fetch_tickets_http_error(self, mock_get):
-        """测试HTTP错误"""
+        """Test HTTP error"""
         mock_response = Mock()
         mock_response.status_code = 404
         mock_response.raise_for_status.side_effect = requests.HTTPError("Not found")
@@ -91,7 +91,7 @@ class TestCtripTicketCrawler:
             crawler.fetch_tickets(query)
 
     def test_session_headers(self):
-        """测试Session headers配置"""
+        """Test Session headers configuration"""
         crawler = CtripTicketCrawler()
 
         headers = crawler._session.headers
@@ -104,7 +104,7 @@ class TestCtripTicketCrawler:
 
     @patch("requests.Session.get")
     def test_filter_by_train_number(self, mock_get):
-        """测试按车次号过滤"""
+        """Test filtering by train number"""
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = "<html><body></body></html>"
@@ -116,16 +116,16 @@ class TestCtripTicketCrawler:
 
         result = crawler.fetch_tickets(query)
 
-        # 验证查询参数
+        # Verify query parameters
         assert result.query.train_number == "C3380"
 
 
 class TestCrawlerErrorHandling:
-    """测试错误处理"""
+    """Test error handling"""
 
     @patch("requests.Session.get")
     def test_connection_error(self, mock_get):
-        """测试连接错误"""
+        """Test connection error"""
         mock_get.side_effect = requests.ConnectionError("Connection refused")
 
         crawler = CtripTicketCrawler()
@@ -138,25 +138,25 @@ class TestCrawlerErrorHandling:
 
     @patch("requests.Session.get")
     def test_invalid_response(self, mock_get):
-        """测试无效响应"""
+        """Test invalid response"""
         mock_response = Mock()
         mock_response.status_code = 200
-        mock_response.text = ""  # 空响应
+        mock_response.text = ""  # Empty response
         mock_get.return_value = mock_response
 
         crawler = CtripTicketCrawler()
         query = mock_ticket_query()
 
-        # 应该返回空结果而不是崩溃
+        # Should return empty result instead of crashing
         result = crawler.fetch_tickets(query)
         assert result.query == query
 
 
 class TestCrawlerConfiguration:
-    """测试爬虫配置"""
+    """Test crawler configuration"""
 
     def test_custom_timeout(self):
-        """测试自定义超时"""
+        """Test custom timeout"""
         timeouts = [5, 10, 30, 60]
 
         for timeout in timeouts:
@@ -164,7 +164,7 @@ class TestCrawlerConfiguration:
             assert crawler._timeout == timeout
 
     def test_base_url_configuration(self):
-        """测试基础URL配置"""
+        """Test base URL configuration"""
         crawler = CtripTicketCrawler()
 
         assert hasattr(crawler, "BASE_URL")
