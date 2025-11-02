@@ -55,12 +55,12 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# 临时文件和测试脚本
-crawler.py
-response.html
-script_*.txt
-test_*.py
-debug_*.py
+# 临时文件和测试脚本（仅根目录）
+/crawler.py
+/response.html
+/script_*.txt
+/test_*.py
+/debug_*.py
 
 
 .mypy_cache/
