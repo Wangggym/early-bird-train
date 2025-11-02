@@ -65,10 +65,10 @@ class EmailNotifier(INotifier):
             target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
             today = datetime.now().date()
             delta = (target_date - today).days
-            
+
             weekday_names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
             weekday_names_cn = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
-            
+
             if delta < 0:
                 # Past date
                 return f"{target_date.month}/{target_date.day}"
@@ -95,39 +95,39 @@ class EmailNotifier(INotifier):
                 return f"{target_date.month}/{target_date.day}"
         except:
             return date_str
-    
+
     def _format_duration(self, duration_str: str) -> str:
         """Format duration string to remove '0时' prefix"""
         # Remove '0时' or '0h' prefix
         # Match patterns like "0时22分" or "0h22m"
         duration = duration_str.strip()
-        duration = re.sub(r'^0时', '', duration)  # Remove 0时
-        duration = re.sub(r'^0h', '', duration)   # Remove 0h
+        duration = re.sub(r"^0时", "", duration)  # Remove 0时
+        duration = re.sub(r"^0h", "", duration)  # Remove 0h
         return duration.strip()
 
     def _build_subject(self, analysis: AnalysisResult) -> str:
         """Build email subject optimized for Huawei Band display - ALL info must be here"""
         query = analysis.raw_data.query
         train = analysis.raw_data.trains[0] if analysis.raw_data.trains else None
-        
+
         if analysis.has_ticket and train:
             # Format date as relative time
             date_str = self._format_relative_date(query.departure_date)
-            
+
             # Format duration
             duration_str = self._format_duration(train.duration)
-            
+
             # Seat abbreviation mapping (Chinese to abbreviation)
             seat_abbr_map = {
                 "商务座": "BC",
-                "一等座": "FC", 
+                "一等座": "FC",
                 "二等座": "SC",
                 "软卧": "SS",
                 "硬卧": "HS",
                 "硬座": "HT",
-                "无座": "NS"
+                "无座": "NS",
             }
-            
+
             # Get lowest price and its seat type from available seats
             min_price = None
             min_seat_type = None
@@ -136,25 +136,25 @@ class EmailNotifier(INotifier):
                     if min_price is None or seat.price < min_price:
                         min_price = seat.price
                         min_seat_type = seat.seat_type.value
-            
+
             # Format: ✅ C3380 崇州-成都南 Tmr 7:23 22分 SC¥14
             price_str = ""
             if min_price and min_seat_type:
                 seat_abbr = seat_abbr_map.get(min_seat_type, min_seat_type[:2])
                 price_str = f" {seat_abbr}¥{min_price}"
-            
+
             return f"✅ {query.train_number} {train.departure_station}-{train.arrival_station} {date_str} {train.departure_time} {duration_str}{price_str}"
         else:
             # Format date for no ticket case using relative time
             date_str = self._format_relative_date(query.departure_date)
-            
+
             return f"❌ {query.train_number} {date_str} No Tkt"
 
     def _build_body(self, analysis: AnalysisResult) -> tuple[str, str]:
         """Build email body - returns (plain_text, html)"""
         train = analysis.raw_data.trains[0] if analysis.raw_data.trains else None
         query = analysis.raw_data.query
-        
+
         # Plain text version for Apple Watch and email preview
         plain_text = self._build_plain_text(analysis, train, query)
 
@@ -234,47 +234,47 @@ class EmailNotifier(INotifier):
     def _build_plain_text(self, analysis: AnalysisResult, train, query) -> str:
         """Build plain text summary optimized for Huawei Band 10 display"""
         lines = []
-        
+
         # Seat abbreviation mapping (Chinese to abbreviation)
         seat_abbr_map = {
             "商务座": "BC",
-            "一等座": "FC", 
+            "一等座": "FC",
             "二等座": "SC",
             "软卧": "SS",
             "硬卧": "HS",
             "硬座": "HT",
-            "无座": "NS"
+            "无座": "NS",
         }
-        
+
         if analysis.has_ticket and train:
-            lines.append(f"✅ TKT AVAIL")
+            lines.append("✅ TKT AVAIL")
             lines.append(f"{train.train_number}")
             lines.append(f"{train.departure_station} → {train.arrival_station}")
             lines.append(f"Dep: {train.departure_time}")
             lines.append(f"Arr: {train.arrival_time}")
             lines.append(f"Dur: {train.duration}")
             lines.append("")
-            
+
             # Available seats with abbreviations
             lines.append("Seats:")
             for seat in train.seats:
                 if seat.is_available and seat.bookable:
                     seat_abbr = seat_abbr_map.get(seat.seat_type.value, seat.seat_type.value)
                     lines.append(f"{seat_abbr}: ¥{seat.price} ({seat.inventory_display})")
-            
+
             lines.append("")
             lines.append(f"💡 {analysis.recommendation}")
         else:
-            lines.append(f"❌ NO TKT")
+            lines.append("❌ NO TKT")
             lines.append(f"{query.train_number}")
             lines.append(f"{query.departure_date}")
             lines.append(f"{query.from_station} → {query.to_station}")
             lines.append("")
             lines.append(f"{analysis.summary}")
-        
+
         lines.append("")
         lines.append(f"Chk: {analysis.analyzed_at.strftime('%m-%d %H:%M')}")
-        
+
         return "\n".join(lines)
 
     def _send_email(self, subject: str, plain_text: str, html_body: str) -> None:
