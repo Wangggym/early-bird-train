@@ -65,7 +65,7 @@ class EmailNotifier(INotifier):
             target_date = datetime.strptime(date_str, "%Y-%m-%d").date()
             today = datetime.now().date()
             delta = (target_date - today).days
-            
+
             weekday_names_cn = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
             if delta < 0:
