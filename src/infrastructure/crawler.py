@@ -1,6 +1,5 @@
 """Ctrip ticket crawler implementation"""
 
-
 import requests
 from bs4 import BeautifulSoup
 from loguru import logger
