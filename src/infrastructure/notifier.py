@@ -267,7 +267,7 @@ class EmailNotifier(INotifier):
             lines.append("❌ NO TKT")
             lines.append(f"{query.train_number}")
             lines.append(f"{query.departure_date}")
-            lines.append(f"{query.from_station} → {query.to_station}")
+            lines.append(f"{query.departure_station} → {query.arrival_station}")
             lines.append("")
             lines.append(f"{analysis.summary}")
 
